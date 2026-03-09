@@ -1,8 +1,19 @@
-<!-- Buildings.svelte — Cozy illustrated buildings in the world scene (burrow, garden, etc.) -->
+<!-- Buildings.svelte — Composes Cottage, Garden, and Path -->
 <script lang="ts">
-	// TODO: SVG buildings with watercolor filter, interactive tap targets
+	import type { TimeOfDay } from '$lib/utils/time';
+	import Cottage from './Cottage.svelte';
+	import Garden from './Garden.svelte';
+	import Path from './Path.svelte';
+
+	interface Props {
+		time: TimeOfDay;
+	}
+
+	let { time }: Props = $props();
 </script>
 
-<div class="buildings absolute bottom-4 w-full flex justify-center gap-4">
-	<p class="text-wood-dark text-xs text-center">🏠 buildings placeholder</p>
-</div>
+<g class="buildings">
+	<Path />
+	<Garden stage={2} />
+	<Cottage {time} />
+</g>
