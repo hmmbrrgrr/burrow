@@ -1,6 +1,7 @@
 <!-- FocusTimer.svelte — Pomodoro timer with SVG progress ring -->
 <script lang="ts">
 	import { appState } from '$lib/stores/app.svelte';
+	import { saveFocusSession as persistFocusSession, getFocusSessions, type FocusSession } from '$lib/services/journal';
 
 	interface Props {
 		open: boolean;
@@ -19,6 +20,26 @@
 	let flash = $state(false);
 	let interval: ReturnType<typeof setInterval> | null = null;
 
+	// --- Session history (via journal service) ---
+	let completedSessions = $state<FocusSession[]>([]);
+
+	// Load from localStorage on mount
+	$effect(() => {
+		completedSessions = getFocusSessions();
+	});
+
+	function recordSession(sessionMode: TimerMode, durationMinutes: number) {
+		persistFocusSession(durationMinutes, sessionMode);
+		completedSessions = getFocusSessions();
+	}
+
+	let todaySessions = $derived.by(() => {
+		const todayStr = new Date().toISOString().slice(0, 10);
+		return completedSessions.filter(
+			(s) => s.completedAt.slice(0, 10) === todayStr && s.mode === 'work'
+		).length;
+	});
+
 	let totalSeconds = $derived(mode === 'work' ? WORK_SECONDS : BREAK_SECONDS);
 	let progress = $derived(1 - remaining / totalSeconds);
 
@@ -28,6 +49,23 @@
 	let dashOffset = $derived(circumference * (1 - progress));
 
 	let ringColor = $derived(mode === 'work' ? '#E8945A' : '#98BF82');
+
+	// --- Tick marks at 5-minute intervals ---
+	let tickMarks = $derived.by(() => {
+		const total = totalSeconds;
+		const totalMinutes = total / 60;
+		const ticks: { cx: number; cy: number; passed: boolean }[] = [];
+		for (let m = 5; m <= totalMinutes; m += 5) {
+			const angleDeg = (m / totalMinutes) * 360 - 90;
+			const angleRad = (angleDeg * Math.PI) / 180;
+			ticks.push({
+				cx: 100 + radius * Math.cos(angleRad),
+				cy: 100 + radius * Math.sin(angleRad),
+				passed: progress >= m / totalMinutes
+			});
+		}
+		return ticks;
+	});
 
 	let displayMinutes = $derived(Math.floor(remaining / 60).toString().padStart(2, '0'));
 	let displaySeconds = $derived((remaining % 60).toString().padStart(2, '0'));
@@ -64,6 +102,7 @@
 		setTimeout(() => { flash = false; }, 600);
 
 		if (mode === 'work') {
+			recordSession('work', WORK_SECONDS / 60);
 			mode = 'break';
 			remaining = BREAK_SECONDS;
 			appState.emberState = 'idle';
@@ -110,6 +149,16 @@
 						transform="rotate(-90 100 100)"
 						style="transition: stroke-dashoffset 1s linear, stroke 0.5s ease;"
 					/>
+					{#each tickMarks as tick}
+						<circle
+							cx={tick.cx}
+							cy={tick.cy}
+							r="3"
+							fill={ringColor}
+							opacity={tick.passed ? 1 : 0.3}
+							style="transition: opacity 0.3s ease;"
+						/>
+					{/each}
 				</svg>
 				<div class="timer-display">
 					<span class="time-text">{displayMinutes}:{displaySeconds}</span>
@@ -126,6 +175,8 @@
 				{/if}
 				<button class="ctrl-btn reset" onclick={reset}>Reset</button>
 			</div>
+
+			<p class="session-counter">{todaySessions} focus {todaySessions === 1 ? 'session' : 'sessions'} today</p>
 		</div>
 	</div>
 {/if}
@@ -240,6 +291,14 @@
 	.ctrl-btn.reset {
 		background: rgba(92, 77, 60, 0.1);
 		color: #5C4D3C;
+	}
+
+	.session-counter {
+		font-family: var(--font-sans);
+		font-size: 0.85rem;
+		color: rgba(92, 77, 60, 0.5);
+		margin-top: 16px;
+		margin-bottom: 0;
 	}
 
 	.fade-in {

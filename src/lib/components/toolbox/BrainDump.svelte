@@ -14,6 +14,20 @@
 	let dumps = $state<BrainDumpType[]>([]);
 	let voiceActive = $state(false);
 	let voiceSupported = $state(false);
+	let expandedDumps = $state<Set<string>>(new Set());
+
+	let wordCount = $derived(text.trim() ? text.trim().split(/\s+/).length : 0);
+
+	function toggleExpand(id: string) {
+		const next = new Set(expandedDumps);
+		if (next.has(id)) next.delete(id);
+		else next.add(id);
+		expandedDumps = next;
+	}
+
+	function shouldTruncate(t: string): boolean {
+		return t.length > 150;
+	}
 
 	$effect(() => {
 		if (open) {
@@ -90,6 +104,7 @@
 					placeholder="Just get it out of your head..."
 					rows={4}
 				></textarea>
+				<div class="word-count">{wordCount} words</div>
 				<div class="input-actions">
 					{#if voiceSupported}
 						<button class="voice-btn" class:active={voiceActive} onclick={toggleVoice} aria-label="Voice input">
@@ -101,14 +116,25 @@
 			</div>
 
 			{#if dumps.length > 0}
-				<div class="past-dumps">
-					{#each dumps as d (d.id)}
-						<div class="dump-item">
-							<div class="dump-meta">{formatDate(d.createdAt)}</div>
-							<p class="dump-text">{d.text}</p>
-							<button class="delete-btn" onclick={() => removeDump(d.id)} aria-label="Delete">✕</button>
-						</div>
-					{/each}
+				<div class="past-dumps-section">
+					<h3 class="past-dumps-header">Your thoughts ({dumps.length})</h3>
+					<div class="past-dumps">
+						{#each dumps as d (d.id)}
+							<div class="dump-item">
+								<div class="dump-meta">{formatDate(d.createdAt)} · {d.text.trim().split(/\s+/).length} words</div>
+								{#if shouldTruncate(d.text) && !expandedDumps.has(d.id)}
+									<p class="dump-text">{d.text.slice(0, 150)}…</p>
+									<button class="show-more-btn" onclick={() => toggleExpand(d.id)}>show more</button>
+								{:else}
+									<p class="dump-text">{d.text}</p>
+									{#if shouldTruncate(d.text)}
+										<button class="show-more-btn" onclick={() => toggleExpand(d.id)}>show less</button>
+									{/if}
+								{/if}
+								<button class="delete-btn" onclick={() => removeDump(d.id)} aria-label="Delete">✕</button>
+							</div>
+						{/each}
+					</div>
 				</div>
 			{/if}
 		</div>
@@ -185,6 +211,14 @@
 		color: rgba(92, 77, 60, 0.4);
 	}
 
+	.word-count {
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		color: rgba(92, 77, 60, 0.4);
+		margin-top: 6px;
+		text-align: left;
+	}
+
 	.input-actions {
 		display: flex;
 		gap: 8px;
@@ -237,6 +271,20 @@
 		cursor: default;
 	}
 
+	.past-dumps-section {
+		margin-top: 20px;
+		padding-top: 20px;
+		border-top: 1px solid rgba(92, 77, 60, 0.1);
+	}
+
+	.past-dumps-header {
+		font-family: var(--font-serif);
+		font-size: 1rem;
+		color: rgba(92, 77, 60, 0.6);
+		margin-bottom: 12px;
+		font-weight: 500;
+	}
+
 	.past-dumps {
 		display: flex;
 		flex-direction: column;
@@ -245,17 +293,30 @@
 
 	.dump-item {
 		position: relative;
-		padding: 12px 36px 12px 14px;
+		padding: 12px 36px 12px 16px;
 		background: rgba(255, 255, 255, 0.4);
 		border-radius: 10px 12px 14px 8px;
 		border: 1px solid rgba(92, 77, 60, 0.08);
+		border-left: 3px solid #B5A0D1;
+		animation: slide-in 0.3s ease forwards;
+		transition: background 0.2s ease;
+	}
+
+	.dump-item:hover {
+		background: rgba(255, 255, 255, 0.6);
+	}
+
+	@keyframes slide-in {
+		from { opacity: 0; transform: translateX(-8px); }
+		to { opacity: 1; transform: translateX(0); }
 	}
 
 	.dump-meta {
 		font-family: var(--font-sans);
-		font-size: 0.75rem;
-		color: rgba(92, 77, 60, 0.45);
+		font-size: 0.7rem;
+		color: rgba(92, 77, 60, 0.35);
 		margin-bottom: 4px;
+		letter-spacing: 0.02em;
 	}
 
 	.dump-text {
@@ -264,6 +325,23 @@
 		color: #5C4D3C;
 		margin: 0;
 		white-space: pre-wrap;
+	}
+
+	.show-more-btn {
+		background: none;
+		border: none;
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		color: #B5A0D1;
+		cursor: pointer;
+		padding: 2px 0;
+		margin-top: 4px;
+		font-weight: 600;
+		transition: color 0.15s ease;
+	}
+
+	.show-more-btn:hover {
+		color: #9580B8;
 	}
 
 	.delete-btn {

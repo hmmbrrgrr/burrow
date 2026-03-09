@@ -2,6 +2,7 @@
 // localStorage for now, Supabase integration later
 
 import { logHabit, getTodayStr } from './habits';
+import { safeGetItem, safeSetItem } from '$lib/utils/storage';
 
 export interface CheckInData {
 	energy: 'low' | 'medium' | 'high';
@@ -12,10 +13,18 @@ export interface CheckInData {
 
 const STORAGE_KEY = 'burrow-checkins';
 
+interface StoredCheckIn {
+	energy: 'low' | 'medium' | 'high';
+	emotions: string[];
+	habits: Record<string, boolean>;
+	timestamp: string; // ISO date
+}
+
 export function submitCheckin(data: CheckInData): void {
-	const checkins = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+	let checkins: StoredCheckIn[];
+	try { checkins = JSON.parse(safeGetItem(STORAGE_KEY) || '[]'); } catch { checkins = []; }
 	checkins.push({ ...data, timestamp: data.timestamp.toISOString() });
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(checkins));
+	safeSetItem(STORAGE_KEY, JSON.stringify(checkins));
 
 	// Sync habits to the unified habit-logs store
 	const today = getTodayStr();
@@ -25,16 +34,18 @@ export function submitCheckin(data: CheckInData): void {
 }
 
 export function getTodayCheckin(): CheckInData | null {
-	const checkins = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+	let checkins: StoredCheckIn[];
+	try { checkins = JSON.parse(safeGetItem(STORAGE_KEY) || '[]'); } catch { checkins = []; }
 	const today = new Date().toDateString();
-	const found = checkins.find((c: any) => new Date(c.timestamp).toDateString() === today);
-	return found || null;
+	const found = checkins.find((c: StoredCheckIn) => new Date(c.timestamp).toDateString() === today);
+	return found ? { ...found, timestamp: new Date(found.timestamp) } : null;
 }
 
 export function getAllCheckIns(): CheckInData[] {
 	if (typeof window === 'undefined') return [];
-	const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-	return raw.map((c: any) => ({ ...c, timestamp: new Date(c.timestamp) }));
+	let raw: StoredCheckIn[];
+	try { raw = JSON.parse(safeGetItem(STORAGE_KEY) || '[]'); } catch { raw = []; }
+	return raw.map((c: StoredCheckIn) => ({ ...c, timestamp: new Date(c.timestamp) }));
 }
 
 export function hasCheckedInToday(): boolean {

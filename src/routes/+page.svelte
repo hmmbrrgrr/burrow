@@ -22,14 +22,17 @@
 		getUnlockedFeatures,
 		getNewUnlocks,
 		markUnlockSeen,
+		isUnlocked,
 		type FeatureUnlock,
 	} from '$lib/services/unlocks';
-	import { appState } from '$lib/stores/app.svelte';
+	import { appState, resetSessionState } from '$lib/stores/app.svelte';
 
 	let loaded = $state(false);
 	let celebrationQueue = $state<FeatureUnlock[]>([]);
 	let currentCelebration = $derived(celebrationQueue.length > 0 ? celebrationQueue[0] : null);
 	let showInsights = $state(false);
+	let habitsUnlocked = $derived(isUnlocked('habits'));
+	let insightsUnlocked = $derived(isUnlocked('insights'));
 
 	// Show skeleton until world scene components have mounted
 	$effect(() => {
@@ -50,21 +53,42 @@
 	}
 
 	onMount(() => {
+		// Reset transient state to prevent stale data from previous session / overnight SPA
+		resetSessionState();
+
 		// Initialize first open date (no-op if already set)
 		setFirstOpenDate();
 
-		// Sync unlock state to global store
-		appState.daysSinceFirstOpen = getDaysSinceFirstOpen();
-		appState.unlockedFeatures = getUnlockedFeatures().map((f) => f.id);
+		// Refresh state from localStorage with safe fallbacks
+		try {
+			appState.daysSinceFirstOpen = getDaysSinceFirstOpen();
+		} catch {
+			appState.daysSinceFirstOpen = 0;
+		}
+
+		try {
+			appState.unlockedFeatures = getUnlockedFeatures().map((f) => f.id);
+		} catch {
+			appState.unlockedFeatures = [];
+		}
 
 		// Check for new unlocks to celebrate
-		const newUnlocks = getNewUnlocks();
-		if (newUnlocks.length > 0) {
-			celebrationQueue = [...newUnlocks];
+		let newUnlocks: FeatureUnlock[] = [];
+		try {
+			newUnlocks = getNewUnlocks();
+			if (newUnlocks.length > 0) {
+				celebrationQueue = [...newUnlocks];
+			}
+		} catch {
+			// Corrupted unlock data — skip celebrations
 		}
 
 		// Check localStorage for existing check-in
-		appState.checkedInToday = hasCheckedInToday();
+		try {
+			appState.checkedInToday = hasCheckedInToday();
+		} catch {
+			appState.checkedInToday = false;
+		}
 
 		// Update Ember contextual insight
 		updateEmberInsight();
@@ -126,8 +150,8 @@
 		{/if}
 	</div>
 
-	<!-- Daily habits widget (only after check-in, hidden during check-in sheet) -->
-	{#if appState.checkedInToday && !appState.isCheckInOpen}
+	<!-- Daily habits widget (only after check-in, hidden during check-in sheet, gated by unlock) -->
+	{#if habitsUnlocked && appState.checkedInToday && !appState.isCheckInOpen}
 		<div class="habits-overlay">
 			<DailyHabits />
 		</div>
@@ -138,9 +162,11 @@
 		<div class="checkin-indicator">
 			{'\u2713'} Checked in
 		</div>
-		<button class="insights-btn" onclick={() => showInsights = true}>
-			Insights
-		</button>
+		{#if insightsUnlocked}
+			<button class="insights-btn" onclick={() => showInsights = true}>
+				Insights
+			</button>
+		{/if}
 	{:else}
 		<button class="checkin-btn" onclick={openCheckIn}>
 			Check In

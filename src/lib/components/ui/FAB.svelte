@@ -1,5 +1,8 @@
 <!-- FAB.svelte — Floating action button with quick-action fan menu -->
 <script lang="ts">
+	import { isSupported as voiceIsSupported } from '$lib/services/voice';
+	import { isUnlocked } from '$lib/services/unlocks';
+
 	interface Props {
 		onvoice?: () => void;
 		oncheckin?: () => void;
@@ -9,6 +12,12 @@
 	let { onvoice, oncheckin, onbreathe }: Props = $props();
 
 	let menuOpen = $state(false);
+	let hasVoice = $state(false);
+	let breathingUnlocked = $derived(isUnlocked('breathing'));
+
+	$effect(() => {
+		hasVoice = voiceIsSupported();
+	});
 
 	function toggle() {
 		menuOpen = !menuOpen;
@@ -23,11 +32,18 @@
 		fn?.();
 	}
 
-	const actions = [
+	const allActions = [
 		{ icon: '🎤', label: 'Voice note', key: 'voice' as const },
 		{ icon: '☀️', label: 'Check-in', key: 'checkin' as const },
 		{ icon: '🌬️', label: 'Breathe', key: 'breathe' as const },
 	];
+
+	let actions = $derived(
+		allActions.filter(a =>
+			(a.key !== 'voice' || hasVoice) &&
+			(a.key !== 'breathe' || breathingUnlocked)
+		)
+	);
 </script>
 
 {#if menuOpen}

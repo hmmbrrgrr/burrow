@@ -6,6 +6,8 @@
 	import CheckInSheet from '$lib/components/checkin/CheckInSheet.svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { getTimeOfDay } from '$lib/utils/time';
+	import { hasCheckedInToday } from '$lib/services/checkins';
+	import { getDaysSinceFirstOpen, getUnlockedFeatures } from '$lib/services/unlocks';
 	import { page } from '$app/stores';
 
 	let { children } = $props();
@@ -20,6 +22,26 @@
 			appState.timeOfDay = getTimeOfDay();
 		}, 60000);
 		return () => clearInterval(interval);
+	});
+
+	// Refresh session-sensitive state when user returns to app (tab switch, phone unlock)
+	// Prevents stale data if app stays open overnight or is backgrounded across days
+	$effect(() => {
+		function refreshSessionState() {
+			appState.timeOfDay = getTimeOfDay();
+			appState.checkedInToday = hasCheckedInToday();
+			appState.daysSinceFirstOpen = getDaysSinceFirstOpen();
+			appState.unlockedFeatures = getUnlockedFeatures().map((f) => f.id);
+		}
+
+		function handleVisibilityChange() {
+			if (document.visibilityState === 'visible') {
+				refreshSessionState();
+			}
+		}
+
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+		return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
 	});
 
 	let timeOfDay = $derived(appState.timeOfDay);

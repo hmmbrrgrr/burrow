@@ -41,6 +41,9 @@
 	<g filter="url(#hand-drawn)">
 	<!-- Chimney -->
 	<rect x="48" y="-30" width="10" height="22" rx="2" fill="#8B5E3C" />
+	<!-- Chimney brick course lines -->
+	<line x1="48" y1="-22" x2="58" y2="-22" stroke="#7A4E2C" stroke-width="0.7" opacity="0.5" />
+	<line x1="48" y1="-14" x2="58" y2="-14" stroke="#7A4E2C" stroke-width="0.7" opacity="0.5" />
 
 	<!-- Roof — thatched, slightly asymmetric -->
 	<path
@@ -69,38 +72,58 @@
 		d="M28 44 L28 28 Q28 20 35 20 Q42 20 42 28 L42 44 Z"
 		fill="#7A4E2C"
 	/>
-	<circle cx="39" cy="33" r="1.5" fill="#F2C94C" />
+	<circle cx="39" cy="33" r="2" fill="#D4A84B" />
+
+	<!-- Doorstep -->
+	<rect x="26" y="44" width="18" height="3" rx="1" fill="#A0937D" />
 
 	<!-- Windows with warm glow -->
 	<!-- Left window glow halo -->
 	<ellipse class="window-glow-halo" cx="14.5" cy="18.5" rx="10" ry="10" fill="#F2C94C" opacity={glowHalo} />
 	<rect x="8" y="12" width="13" height="13" rx="2" fill="#5C4D3C" />
 	<rect class="window-pane" x="9" y="13" width="11" height="11" rx="1" fill="url(#window-glow)" opacity={windowGlow} />
-	<line x1="14.5" y1="13" x2="14.5" y2="24" stroke="#5C4D3C" stroke-width="1" />
-	<line x1="9" y1="18.5" x2="20" y2="18.5" stroke="#5C4D3C" stroke-width="1" />
+	<line x1="14.5" y1="13" x2="14.5" y2="24" stroke="#5C4D3C" stroke-width="1.2" />
+	<line x1="9" y1="18.5" x2="20" y2="18.5" stroke="#5C4D3C" stroke-width="1.2" />
+	<!-- Inner pane divider glow -->
+	<line x1="14.5" y1="13.5" x2="14.5" y2="23.5" stroke="#B8860B" stroke-width="0.5" opacity="0.4" />
+	<line x1="9.5" y1="18.5" x2="19.5" y2="18.5" stroke="#B8860B" stroke-width="0.5" opacity="0.4" />
 
 	<!-- Right window glow halo -->
 	<ellipse class="window-glow-halo" cx="56.5" cy="18.5" rx="10" ry="10" fill="#F2C94C" opacity={glowHalo} />
 	<rect x="50" y="12" width="13" height="13" rx="2" fill="#5C4D3C" />
 	<rect class="window-pane" x="51" y="13" width="11" height="11" rx="1" fill="url(#window-glow)" opacity={windowGlow} />
-	<line x1="56.5" y1="13" x2="56.5" y2="24" stroke="#5C4D3C" stroke-width="1" />
-	<line x1="51" y1="18.5" x2="62" y2="18.5" stroke="#5C4D3C" stroke-width="1" />
+	<line x1="56.5" y1="13" x2="56.5" y2="24" stroke="#5C4D3C" stroke-width="1.2" />
+	<line x1="51" y1="18.5" x2="62" y2="18.5" stroke="#5C4D3C" stroke-width="1.2" />
+	<!-- Inner pane divider glow -->
+	<line x1="56.5" y1="13.5" x2="56.5" y2="23.5" stroke="#B8860B" stroke-width="0.5" opacity="0.4" />
+	<line x1="51.5" y1="18.5" x2="61.5" y2="18.5" stroke="#B8860B" stroke-width="0.5" opacity="0.4" />
 
 	<!-- Flower box under left window -->
 	<rect x="7" y="26" width="15" height="4" rx="1" fill="#8B5E3C" />
 	<rect x="7.5" y="26.5" width="14" height="3" rx="0.5" fill="#7A4E2C" />
 	<!-- Flower 1 — orange -->
 	<line x1="10" y1="26" x2="10" y2="22" stroke="#5A8A3C" stroke-width="0.8" />
+	<!-- Leaf -->
+	<ellipse cx="8.5" cy="24" rx="1.8" ry="0.8" fill="#4A7A2C" opacity="0.7" transform="rotate(-25, 8.5, 24)" />
 	<circle cx="10" cy="21.5" r="1.8" fill="#E8945A" />
 	<circle cx="10" cy="21.5" r="0.8" fill="#F2C94C" />
 	<!-- Flower 2 — purple -->
 	<line x1="14.5" y1="26" x2="14.5" y2="20.5" stroke="#5A8A3C" stroke-width="0.8" />
+	<!-- Leaf -->
+	<ellipse cx="16" cy="23.5" rx="1.8" ry="0.8" fill="#4A7A2C" opacity="0.7" transform="rotate(20, 16, 23.5)" />
 	<circle cx="14.5" cy="20" r="2" fill="#B088D0" />
 	<circle cx="14.5" cy="20" r="0.9" fill="#E8D5F5" />
 	<!-- Flower 3 — red/pink -->
 	<line x1="19" y1="26" x2="19" y2="21.5" stroke="#5A8A3C" stroke-width="0.8" />
+	<!-- Leaf -->
+	<ellipse cx="20.5" cy="24" rx="1.5" ry="0.7" fill="#4A7A2C" opacity="0.7" transform="rotate(30, 20.5, 24)" />
 	<circle cx="19" cy="21" r="1.6" fill="#E86B6B" />
 	<circle cx="19" cy="21" r="0.7" fill="#F2C94C" />
+	<!-- Small buds between main flowers -->
+	<line x1="12" y1="26" x2="12" y2="23.5" stroke="#5A8A3C" stroke-width="0.5" />
+	<circle cx="12" cy="23" r="1" fill="#F2A6A6" opacity="0.8" />
+	<line x1="17" y1="26" x2="17" y2="23" stroke="#5A8A3C" stroke-width="0.5" />
+	<circle cx="17" cy="22.5" r="1.1" fill="#C4A0E0" opacity="0.8" />
 	</g>
 </g>
 

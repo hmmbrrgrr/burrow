@@ -1,6 +1,6 @@
 <!-- BreathingExercise.svelte — Guided breathing circle with mood check -->
 <script lang="ts">
-	import { saveBreathingSession } from '$lib/services/journal';
+	import { saveBreathingSession, getBreathingSessions } from '$lib/services/journal';
 
 	interface Props {
 		open: boolean;
@@ -17,6 +17,17 @@
 	let elapsed = $state(0);
 	let timer: ReturnType<typeof setInterval> | null = null;
 	let animating = $state(false);
+	let pulsing = $state(false);
+	let sessionRefresh = $state(0);
+	let prevBreathPhase = $state<'inhale' | 'hold' | 'exhale' | null>(null);
+
+	// Derived session count — re-evaluates when sessionRefresh changes
+	let todaySessionCount = $derived.by(() => {
+		void sessionRefresh;
+		const today = new Date().toISOString().slice(0, 10);
+		const sessions = getBreathingSessions();
+		return sessions.filter(s => s.completedAt?.startsWith(today)).length;
+	});
 
 	// Breathing cycle phases derived from animation time
 	let cyclePosition = $derived(elapsed % 12);
@@ -26,6 +37,15 @@
 	let breathLabel = $derived(
 		breathPhase === 'inhale' ? 'Breathe in...' : breathPhase === 'hold' ? 'Hold...' : 'Breathe out...'
 	);
+
+	// Trigger pulse animation on breath phase change
+	$effect(() => {
+		if (prevBreathPhase !== null && breathPhase !== prevBreathPhase) {
+			pulsing = true;
+			setTimeout(() => { pulsing = false; }, 300);
+		}
+		prevBreathPhase = breathPhase;
+	});
 
 	function selectPreMood(mood: Mood) {
 		preMood = mood;
@@ -61,7 +81,9 @@
 			});
 		}
 		phase = 'complete';
-		setTimeout(() => close(), 2000);
+		// Bump refresh counter to re-derive session count
+		sessionRefresh++;
+		setTimeout(() => close(), 3500);
 	}
 
 	function close() {
@@ -84,6 +106,15 @@
 	}
 
 	const moods: Mood[] = ['😫', '😐', '😌'];
+	const moodValue: Record<Mood, number> = { '😫': 0, '😐': 1, '😌': 2 };
+
+	let moodMessage = $derived.by(() => {
+		if (!preMood || !postMood) return '';
+		const diff = moodValue[postMood] - moodValue[preMood];
+		if (diff > 0) return 'Nice improvement! 🌟';
+		if (diff === 0) return 'Staying steady 💪';
+		return "That's okay, every breath counts 💚";
+	});
 
 	// Cleanup on unmount
 	$effect(() => {
@@ -104,6 +135,9 @@
 
 		{#if phase === 'pre-mood'}
 			<div class="mood-check fade-in">
+				{#if todaySessionCount > 0}
+					<p class="session-count">Session {todaySessionCount + 1} today</p>
+				{/if}
 				<h2 class="mood-title">How do you feel right now?</h2>
 				<div class="mood-options">
 					{#each moods as mood}
@@ -116,7 +150,7 @@
 		{:else if phase === 'breathing'}
 			<div class="breathing-content fade-in">
 				<div class="circle-container">
-					<div class="breath-circle" class:animating class:inhale={breathPhase === 'inhale'} class:hold={breathPhase === 'hold'} class:exhale={breathPhase === 'exhale'}></div>
+					<div class="breath-circle" class:animating class:pulsing class:inhale={breathPhase === 'inhale'} class:hold={breathPhase === 'hold'} class:exhale={breathPhase === 'exhale'}></div>
 				</div>
 				<p class="breath-label">{breathLabel}</p>
 				<p class="timer">{formatTime(elapsed)}</p>
@@ -135,8 +169,19 @@
 			</div>
 		{:else if phase === 'complete'}
 			<div class="complete fade-in">
+				{#if preMood && postMood}
+					<div class="mood-comparison">
+						<span class="compare-mood">{preMood}</span>
+						<span class="compare-arrow">→</span>
+						<span class="compare-mood">{postMood}</span>
+					</div>
+					<p class="compare-sublabel">Before → After</p>
+				{/if}
 				<span class="complete-emoji">🌿</span>
 				<p class="complete-msg">Well done. Take this calm with you.</p>
+				{#if preMood && postMood}
+					<p class="mood-result-msg">{moodMessage}</p>
+				{/if}
 			</div>
 		{/if}
 
@@ -263,6 +308,16 @@
 		66.66% { transform: scale(1); }
 	}
 
+	/* Phase transition pulse */
+	.breath-circle.pulsing {
+		animation: breathe 12s ease-in-out infinite, phase-pulse 0.3s ease-out;
+	}
+
+	@keyframes phase-pulse {
+		0% { box-shadow: 0 0 0 0 rgba(181, 160, 209, 0.6); }
+		100% { box-shadow: 0 0 20px 10px rgba(181, 160, 209, 0); }
+	}
+
 	.breath-label {
 		font-family: var(--font-serif);
 		font-size: 1.3rem;
@@ -276,6 +331,13 @@
 		font-size: 0.9rem;
 		color: rgba(92, 77, 60, 0.5);
 		margin: 0;
+	}
+
+	.session-count {
+		font-family: var(--font-sans);
+		font-size: 0.85rem;
+		color: rgba(92, 77, 60, 0.5);
+		margin: 0 0 8px;
 	}
 
 	.done-btn {
@@ -351,6 +413,39 @@
 		font-size: 1.2rem;
 		color: #5C4D3C;
 		margin: 0;
+	}
+
+	.mood-comparison {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+		font-size: 1.5rem;
+		margin-bottom: 8px;
+	}
+
+	.compare-mood {
+		font-size: 1.5rem;
+	}
+
+	.compare-arrow {
+		font-size: 1.2rem;
+		color: rgba(92, 77, 60, 0.4);
+	}
+
+	.compare-sublabel {
+		font-size: 0.75rem;
+		color: rgba(92, 77, 60, 0.4);
+		margin: 0 0 8px;
+		font-family: var(--font-sans);
+	}
+
+	.mood-result-msg {
+		font-family: var(--font-serif);
+		font-size: 1rem;
+		color: #8BAF7C;
+		margin: 14px 0 0;
+		animation: fade-in 0.5s ease 0.6s both;
 	}
 
 	/* Shared animations */

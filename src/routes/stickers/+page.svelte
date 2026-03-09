@@ -12,18 +12,22 @@
 	import { useVisibility } from '$lib/utils/visibility';
 
 	let stickersUnlocked = $derived(isUnlocked('stickers'));
-	let earnedCount = $derived(getEarnedStickerIds().length);
+	let earnedCount = $derived((getEarnedStickerIds() ?? []).length);
 	let revealSticker = $state<Sticker | null>(null);
 	let showReveal = $state(false);
 
 	onMount(() => {
-		const newlyEarned = checkStickers();
-		if (newlyEarned.length > 0) {
-			const sticker = STICKER_CATALOG.find((s) => s.id === newlyEarned[0]);
-			if (sticker) {
-				revealSticker = sticker;
-				showReveal = true;
+		try {
+			const newlyEarned = checkStickers() ?? [];
+			if (newlyEarned.length > 0) {
+				const sticker = STICKER_CATALOG.find((s) => s.id === newlyEarned[0]);
+				if (sticker) {
+					revealSticker = sticker;
+					showReveal = true;
+				}
 			}
+		} catch {
+			// Corrupted sticker data — page still renders safely
 		}
 	});
 

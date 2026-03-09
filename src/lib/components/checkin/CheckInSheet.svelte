@@ -19,11 +19,15 @@
 	let habits = $state<Record<string, boolean>>({});
 	let celebrationMsg = $state('');
 	let slideDir = $state<'left' | 'right'>('left');
+	let autoAdvanceTimer: ReturnType<typeof setTimeout> | null = null;
+	let celebrationTimer: ReturnType<typeof setTimeout> | null = null;
+	let resetTimer: ReturnType<typeof setTimeout> | null = null;
 
 	// Auto-advance when energy is selected
 	$effect(() => {
 		if (energy && step === 1) {
-			setTimeout(() => {
+			autoAdvanceTimer = setTimeout(() => {
+				autoAdvanceTimer = null;
 				slideDir = 'left';
 				step = 2;
 			}, 300);
@@ -54,10 +58,12 @@
 		step = 4;
 
 		// Auto-dismiss after 3s
-		setTimeout(() => {
+		celebrationTimer = setTimeout(() => {
+			celebrationTimer = null;
 			open = false;
 			// Reset for next time
-			setTimeout(() => {
+			resetTimer = setTimeout(() => {
+				resetTimer = null;
 				step = 1;
 				energy = null;
 				emotions = [];
@@ -72,13 +78,27 @@
 		}, 5000);
 	}
 
-	// Reset state when sheet closes
+	function clearAllTimers() {
+		if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+		if (celebrationTimer) { clearTimeout(celebrationTimer); celebrationTimer = null; }
+		if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+	}
+
+	function resetFlow() {
+		clearAllTimers();
+		step = 1;
+		energy = null;
+		emotions = [];
+		habits = {};
+		celebrationMsg = '';
+	}
+
+	// Reset state when sheet closes (mid-flow or after celebration)
 	$effect(() => {
-		if (!open && step !== 4) {
-			step = 1;
-			energy = null;
-			emotions = [];
-			habits = {};
+		if (!open) {
+			// Delay reset slightly so close animation isn't janky
+			const t = setTimeout(() => resetFlow(), 350);
+			return () => clearTimeout(t);
 		}
 	});
 </script>

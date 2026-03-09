@@ -2,6 +2,7 @@
 // localStorage for now, Supabase integration later
 
 import { getAllHabits, getDailyHabits, getTodayStr as getHabitTodayStr } from './habits';
+import { safeGetItem, safeSetItem } from '$lib/utils/storage';
 
 // ─── Types ───
 
@@ -325,18 +326,58 @@ export const CATEGORIES: { label: string; value: StickerCategory | 'all' }[] = [
 
 // ─── Earned Stickers Storage ───
 
+/** Set of valid sticker IDs from the catalog, for fast lookup */
+const VALID_STICKER_IDS = new Set(STICKER_CATALOG.map((s) => s.id));
+
 function loadEarned(): EarnedSticker[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(STICKERS_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(STICKERS_KEY);
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw);
+		// Validate: must be an array
+		if (!Array.isArray(parsed)) {
+			persistEarned([]);
+			return [];
+		}
+		// Filter to valid entries: must have string id that exists in catalog, and valid earnedAt
+		const valid = parsed.filter(
+			(e: unknown): e is EarnedSticker =>
+				typeof e === 'object' &&
+				e !== null &&
+				typeof (e as EarnedSticker).id === 'string' &&
+				VALID_STICKER_IDS.has((e as EarnedSticker).id) &&
+				typeof (e as EarnedSticker).earnedAt === 'string' &&
+				!isNaN(new Date((e as EarnedSticker).earnedAt).getTime())
+		);
+		// If we filtered anything out, persist the cleaned version
+		if (valid.length !== parsed.length) {
+			persistEarned(valid);
+		}
+		return valid;
+	} catch {
+		// Corrupted JSON — reset to empty
+		persistEarned([]);
+		return [];
+	}
 }
 
 function persistEarned(earned: EarnedSticker[]): void {
-	localStorage.setItem(STICKERS_KEY, JSON.stringify(earned));
+	safeSetItem(STICKERS_KEY, JSON.stringify(earned));
 }
 
 export function getEarnedStickerIds(): string[] {
 	return loadEarned().map((e) => e.id);
+}
+
+/** Returns all earned sticker objects. Always returns a valid array. */
+export function getEarnedStickers(): EarnedSticker[] {
+	return loadEarned();
+}
+
+/** Returns the full sticker catalog. Always returns a valid array. */
+export function getAllStickers(): Sticker[] {
+	return STICKER_CATALOG ?? [];
 }
 
 export function isEarned(id: string): boolean {
@@ -362,26 +403,46 @@ export function getStickersByCategory(category: string): Sticker[] {
 
 function loadCheckins(): StoredCheckin[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(CHECKINS_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(CHECKINS_KEY);
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw);
+		if (!Array.isArray(parsed)) return [];
+		return parsed;
+	} catch { return []; }
 }
 
 function loadJournalEntries(): StoredJournal[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(JOURNAL_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(JOURNAL_KEY);
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw);
+		if (!Array.isArray(parsed)) return [];
+		return parsed;
+	} catch { return []; }
 }
 
 function loadBreathingSessions(): StoredBreathingSession[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(BREATHING_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(BREATHING_KEY);
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw);
+		if (!Array.isArray(parsed)) return [];
+		return parsed;
+	} catch { return []; }
 }
 
 function loadBrainDumps(): { id: string; text: string; createdAt: string }[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(BRAINDUMP_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(BRAINDUMP_KEY);
+	if (!raw) return [];
+	try {
+		const parsed = JSON.parse(raw);
+		if (!Array.isArray(parsed)) return [];
+		return parsed;
+	} catch { return []; }
 }
 
 /** Get the start of a day (midnight) for a given date */

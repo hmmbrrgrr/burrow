@@ -144,6 +144,25 @@
 			<path d="M775 462 Q772 448 769 438" stroke="#6B8F5E" stroke-width="1" fill="none" stroke-linecap="round" />
 			<path d="M778 461 Q780 446 782 437" stroke="#8BAF7C" stroke-width="1.2" fill="none" stroke-linecap="round" />
 		</g>
+		<!-- Additional grass tufts for better front hill coverage -->
+		<g class="grass-tuft tuft-11">
+			<path d="M90 464 Q87 452 84 444" stroke="#A8C882" stroke-width="1.2" fill="none" stroke-linecap="round" />
+			<path d="M93 463 Q94 449 93 440" stroke="#8BAF7C" stroke-width="1" fill="none" stroke-linecap="round" />
+			<path d="M97 464 Q100 453 103 446" stroke="#98BF82" stroke-width="1.1" fill="none" stroke-linecap="round" />
+		</g>
+		<g class="grass-tuft tuft-12">
+			<path d="M255 466 Q252 454 249 445" stroke="#98BF82" stroke-width="1.1" fill="none" stroke-linecap="round" />
+			<path d="M258 465 Q260 451 259 442" stroke="#A8C882" stroke-width="1.3" fill="none" stroke-linecap="round" />
+		</g>
+		<g class="grass-tuft tuft-13">
+			<path d="M420 450 Q417 436 414 426" stroke="#8BAF7C" stroke-width="1" fill="none" stroke-linecap="round" />
+			<path d="M423 449 Q425 434 424 424" stroke="#98BF82" stroke-width="1.2" fill="none" stroke-linecap="round" />
+			<path d="M427 450 Q430 439 433 432" stroke="#A8C882" stroke-width="0.9" fill="none" stroke-linecap="round" />
+		</g>
+		<g class="grass-tuft tuft-14">
+			<path d="M660 460 Q657 448 654 440" stroke="#A8C882" stroke-width="1.2" fill="none" stroke-linecap="round" />
+			<path d="M663 459 Q665 446 664 438" stroke="#8BAF7C" stroke-width="1" fill="none" stroke-linecap="round" />
+		</g>
 	</g>
 {/if}
 
@@ -188,6 +207,10 @@
 	.tuft-8 { animation-delay: -1.5s; }
 	.tuft-9 { animation-delay: -0.9s; }
 	.tuft-10 { animation-delay: -2.6s; }
+	.tuft-11 { animation-delay: -0.2s; }
+	.tuft-12 { animation-delay: -1.3s; }
+	.tuft-13 { animation-delay: -2.0s; }
+	.tuft-14 { animation-delay: -3.1s; }
 
 	/* Back hill tufts — slower sway, smaller */
 	.grass-tuft-back {

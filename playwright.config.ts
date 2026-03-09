@@ -4,7 +4,13 @@ export default defineConfig({
   testDir: './tests',
   timeout: 30000,
   use: {
-    baseURL: 'http://localhost:4173',
+    baseURL: 'http://localhost:4174',
     browserName: 'chromium',
+  },
+  webServer: {
+    command: 'npx vite preview --port 4174',
+    port: 4174,
+    reuseExistingServer: true,
+    timeout: 15000,
   },
 });

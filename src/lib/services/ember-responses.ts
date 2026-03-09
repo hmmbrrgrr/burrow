@@ -3,6 +3,7 @@
 
 import type { EmberState } from '$lib/types/ember';
 import { getCurrentStreak, getEnergyTrend, getCheckInHistory } from '$lib/services/insights';
+import { safeGetItem } from '$lib/utils/storage';
 
 const JOURNAL_KEY = 'burrow-journal';
 
@@ -10,17 +11,21 @@ function formatDateStr(d: Date): string {
 	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-interface EmberResponse {
+export interface EmberResponse {
 	message: string;
 	state: EmberState;
 }
 
 function getJournalEntryCount(): number {
-	if (typeof localStorage === 'undefined') return 0;
-	const raw = localStorage.getItem(JOURNAL_KEY);
+	if (typeof window === 'undefined') return 0;
+	const raw = safeGetItem(JOURNAL_KEY);
 	if (!raw) return 0;
-	const entries = JSON.parse(raw);
-	return Array.isArray(entries) ? entries.length : 0;
+	try {
+		const entries: unknown = JSON.parse(raw);
+		return Array.isArray(entries) ? entries.length : 0;
+	} catch {
+		return 0;
+	}
 }
 
 /** Check if energy has been 'low' for N consecutive recent days */

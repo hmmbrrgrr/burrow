@@ -227,12 +227,16 @@
 		transform-origin: 0px 0px;
 	}
 	.idle .tail {
-		animation: idle-tail 3s linear infinite;
+		animation: idle-tail 3.5s linear infinite;
 		transform-origin: 15px 10px;
+	}
+	.idle .body-shadow {
+		animation: shadow-breathe 3s ease-in-out infinite;
+		transform-origin: 0px 15px;
 	}
 	.idle .ear-left,
 	.idle .ear-right {
-		animation: idle-ear-twitch 5s ease-in-out infinite;
+		animation: idle-ear-twitch 6.5s ease-in-out infinite;
 		transform-origin: center;
 	}
 	.idle .ear-right {
@@ -241,19 +245,19 @@
 
 	@keyframes idle-breathe {
 		0%, 100% { transform: scaleY(1); }
-		50% { transform: scaleY(0.97); }
+		50% { transform: scaleY(0.98); }
 	}
 	@keyframes idle-tail {
-		0% { transform: rotate(-8deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
-		25% { transform: rotate(0deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
-		50% { transform: rotate(8deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
-		75% { transform: rotate(0deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
-		100% { transform: rotate(-8deg); }
+		0% { transform: rotate(-6deg); animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95); }
+		25% { transform: rotate(1deg); animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95); }
+		50% { transform: rotate(10deg); animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95); }
+		75% { transform: rotate(1deg); animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95); }
+		100% { transform: rotate(-6deg); }
 	}
 	@keyframes idle-ear-twitch {
-		0%, 85%, 100% { transform: rotate(0deg); }
-		90% { transform: rotate(5deg); }
-		95% { transform: rotate(-3deg); }
+		0%, 88%, 100% { transform: rotate(0deg); }
+		92% { transform: rotate(1.5deg); }
+		96% { transform: rotate(-1.5deg); }
 	}
 
 	/* ===== HAPPY STATE ===== */
@@ -521,8 +525,13 @@
 
 	/* ===== BODY SHADOW ===== */
 	.body-shadow {
-		filter: blur(3px);
-		opacity: 0.35;
+		filter: blur(2.5px);
+		opacity: 0.15;
+	}
+
+	@keyframes shadow-breathe {
+		0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.15; }
+		50% { transform: scaleX(1.03) scaleY(0.97); opacity: 0.12; }
 	}
 
 	/* ===== REDUCED MOTION ===== */
@@ -530,6 +539,7 @@
 	@media (prefers-reduced-motion: reduce) {
 		/* Kill ambient breathing, tail wag, ear twitch */
 		.idle .body,
+		.idle .body-shadow,
 		.idle .tail,
 		.idle .ear-left,
 		.idle .ear-right,

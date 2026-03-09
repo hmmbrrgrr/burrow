@@ -10,8 +10,18 @@
 
 	let journalUnlocked = $derived(isUnlocked('journal'));
 
+	const journalMoods = [
+		{emoji: '😊', label: 'Happy'},
+		{emoji: '😌', label: 'Calm'},
+		{emoji: '😔', label: 'Down'},
+		{emoji: '😤', label: 'Frustrated'},
+		{emoji: '🤔', label: 'Thoughtful'},
+		{emoji: '⚡', label: 'Energized'}
+	];
+
 	let entries = $state<JournalEntry[]>([]);
 	let text = $state('');
+	let selectedMood = $state<string | null>(null);
 	let voiceActive = $state(false);
 	let voiceSupported = $state(false);
 	let expandedId = $state<string | null>(null);
@@ -45,9 +55,10 @@
 		const trimmed = text.trim();
 		if (!trimmed) return;
 		if (voiceActive) { stopListening(); voiceActive = false; }
-		saveEntry({ text: trimmed, createdAt: new Date().toISOString(), isVoice: isVoiceEntry });
+		saveEntry({ text: trimmed, createdAt: new Date().toISOString(), isVoice: isVoiceEntry, mood: selectedMood ?? undefined });
 		text = '';
 		isVoiceEntry = false;
+		selectedMood = null;
 		entries = getEntries();
 	}
 
@@ -80,8 +91,22 @@
 		editingId = null;
 	}
 
-	function formatDate(iso: string): string {
-		return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+	function dateKey(iso: string): string {
+		const d = new Date(iso);
+		return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+	}
+
+	function friendlyDateLabel(iso: string): string {
+		const date = new Date(iso);
+		const now = new Date();
+		const dk = dateKey(iso);
+		const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+		const yesterday = new Date(now);
+		yesterday.setDate(yesterday.getDate() - 1);
+		const yesterdayKey = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
+		if (dk === todayKey) return 'Today';
+		if (dk === yesterdayKey) return 'Yesterday';
+		return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 	}
 
 	function formatTime(iso: string): string {
@@ -92,15 +117,15 @@
 		return t.length > 100 ? t.slice(0, 100) + '...' : t;
 	}
 
-	// Group entries by date
+	// Group entries by date with friendly labels (Today, Yesterday, or full date)
 	let grouped = $derived.by(() => {
-		const groups: { date: string; entries: JournalEntry[] }[] = [];
+		const groups: { date: string; label: string; entries: JournalEntry[] }[] = [];
 		const map = new Map<string, JournalEntry[]>();
 		for (const e of entries) {
-			const key = formatDate(e.createdAt);
+			const key = dateKey(e.createdAt);
 			if (!map.has(key)) {
 				map.set(key, []);
-				groups.push({ date: key, entries: map.get(key)! });
+				groups.push({ date: key, label: friendlyDateLabel(e.createdAt), entries: map.get(key)! });
 			}
 			map.get(key)!.push(e);
 		}
@@ -127,6 +152,17 @@
 				placeholder="What's on your mind?"
 				rows={4}
 			></textarea>
+			<div class="mood-picker">
+				{#each journalMoods as mood}
+					<button
+						class="mood-btn"
+						class:selected={selectedMood === mood.emoji}
+						onclick={() => { selectedMood = selectedMood === mood.emoji ? null : mood.emoji; }}
+						aria-label={mood.label}
+						title={mood.label}
+					>{mood.emoji}</button>
+				{/each}
+			</div>
 			<div class="input-actions">
 				{#if voiceSupported}
 					<button class="voice-btn" class:active={voiceActive} onclick={toggleVoice} aria-label="Dictate">
@@ -180,7 +216,7 @@
 			<div class="entries-list">
 				{#each grouped as group (group.date)}
 					<div class="date-group">
-						<h3 class="date-header">{group.date}</h3>
+						<h3 class="date-header">{group.label} <span class="entry-count">· {group.entries.length}</span></h3>
 						{#each group.entries as entry (entry.id)}
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
@@ -194,6 +230,7 @@
 								<div class="entry-top">
 									<span class="entry-time">{formatTime(entry.createdAt)}</span>
 									{#if entry.isVoice}<span class="voice-badge">🎤</span>{/if}
+								{#if entry.mood}<span class="mood-tag">{entry.mood}</span>{/if}
 								</div>
 
 								{#if editingId === entry.id}
@@ -328,6 +365,30 @@
 	.save-btn:active { transform: scale(0.97); }
 	.save-btn:disabled { opacity: 0.4; cursor: default; }
 
+	/* Mood picker */
+	.mood-picker {
+		display: flex;
+		gap: 6px;
+		overflow-x: auto;
+		padding: 4px 0;
+		margin-top: 8px;
+	}
+	.mood-btn {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		border: 2px solid rgba(92, 77, 60, 0.12);
+		background: rgba(255, 255, 255, 0.5);
+		font-size: 1.1rem;
+		cursor: pointer;
+		transition: border-color 0.15s ease, background 0.15s ease;
+		flex-shrink: 0;
+	}
+	.mood-btn.selected {
+		border-color: #E8945A;
+		background: rgba(232, 148, 90, 0.1);
+	}
+
 	/* Empty state */
 	.empty-state {
 		text-align: center;
@@ -402,10 +463,23 @@
 		font-family: var(--font-sans);
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: rgba(92, 77, 60, 0.45);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		color: #6B5B3E;
+		letter-spacing: 0.03em;
 		margin: 0 0 8px;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+	.date-header::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: linear-gradient(90deg, rgba(107, 91, 62, 0.25), rgba(107, 91, 62, 0.05));
+	}
+	.entry-count {
+		font-weight: 400;
+		color: rgba(107, 91, 62, 0.45);
+		font-size: 0.8rem;
 	}
 
 	.date-group { display: flex; flex-direction: column; gap: 8px; }
@@ -430,6 +504,7 @@
 	.entry-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
 	.entry-time { font-size: 0.875rem; color: rgba(92, 77, 60, 0.45); }
 	.voice-badge { font-size: 0.75rem; }
+	.mood-tag { font-size: 0.9rem; margin-left: auto; }
 
 	.entry-preview {
 		margin: 0;

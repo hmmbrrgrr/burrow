@@ -1,5 +1,7 @@
 // inventory.ts — localStorage-backed personal inventory service
 
+import { safeGetItem, safeSetItem, safeRemoveItem } from '$lib/utils/storage';
+
 const SNAPSHOTS_KEY = 'burrow-inventory-snapshots';
 const PROGRESS_KEY = 'burrow-inventory-progress';
 const MAX_SNAPSHOTS = 50;
@@ -62,20 +64,17 @@ function generateId(): string {
 
 function loadSnapshots(): PersonalInventorySnapshot[] {
 	if (typeof window === 'undefined') return [];
+	const raw = safeGetItem(SNAPSHOTS_KEY);
 	try {
-		const raw = localStorage.getItem(SNAPSHOTS_KEY);
-		return raw ? JSON.parse(raw) : [];
+		const parsed: unknown = raw ? JSON.parse(raw) : [];
+		return Array.isArray(parsed) ? (parsed as PersonalInventorySnapshot[]) : [];
 	} catch {
 		return [];
 	}
 }
 
 function persistSnapshots(snapshots: PersonalInventorySnapshot[]): void {
-	try {
-		localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify(snapshots));
-	} catch {
-		// storage full or unavailable — silently fail
-	}
+	safeSetItem(SNAPSHOTS_KEY, JSON.stringify(snapshots));
 }
 
 // --- Snapshot Functions ---
@@ -107,18 +106,18 @@ export function deleteInventorySnapshot(id: string): void {
 
 export function saveInventoryProgress(progress: InventoryProgress): void {
 	if (typeof window === 'undefined') return;
-	try {
-		localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
-	} catch {
-		// storage full or unavailable
-	}
+	safeSetItem(PROGRESS_KEY, JSON.stringify(progress));
 }
 
 export function getInventoryProgress(): InventoryProgress | null {
 	if (typeof window === 'undefined') return null;
+	const raw = safeGetItem(PROGRESS_KEY);
 	try {
-		const raw = localStorage.getItem(PROGRESS_KEY);
-		return raw ? JSON.parse(raw) : null;
+		const parsed: unknown = raw ? JSON.parse(raw) : null;
+		if (parsed && typeof parsed === 'object' && 'currentSection' in parsed) {
+			return parsed as InventoryProgress;
+		}
+		return null;
 	} catch {
 		return null;
 	}
@@ -126,9 +125,5 @@ export function getInventoryProgress(): InventoryProgress | null {
 
 export function clearInventoryProgress(): void {
 	if (typeof window === 'undefined') return;
-	try {
-		localStorage.removeItem(PROGRESS_KEY);
-	} catch {
-		// silently fail
-	}
+	safeRemoveItem(PROGRESS_KEY);
 }

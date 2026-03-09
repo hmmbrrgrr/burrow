@@ -112,8 +112,43 @@
 		}
 	}
 
+	/* Ambient sway fallback for touch/no-mouse devices */
+	@media (hover: none), (pointer: coarse) {
+		.world-scene :global(.hill-back),
+		.world-scene :global(.hill-mid),
+		.world-scene :global(.hill-front) {
+			/* Layers already have their own sway — no extra needed */
+		}
+	}
+
+	/* Subtle ambient sway on the parallax wrapper groups for all devices
+	   (mouse parallax overrides this via inline transforms) */
+	.world-scene :global(g[transform]) {
+		animation: ambient-sway 28s ease-in-out infinite;
+	}
+	.world-scene :global(g[transform]:nth-child(2)) {
+		animation-duration: 25s;
+		animation-delay: -8s;
+	}
+	.world-scene :global(g[transform]:nth-child(3)) {
+		animation-duration: 30s;
+		animation-delay: -15s;
+	}
+
+	@keyframes ambient-sway {
+		0%, 100% { translate: 0 0; }
+		25% { translate: 2px 0; }
+		75% { translate: -2px 0; }
+	}
+
 	/* Pause all child animations when offscreen */
 	.world-scene:global([data-visible='false']) :global(*) {
 		animation-play-state: paused !important;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.world-scene :global(g[transform]) {
+			animation: none !important;
+		}
 	}
 </style>

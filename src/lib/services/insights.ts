@@ -1,22 +1,24 @@
 // insights.ts — Data analysis functions for dashboard features
 // Pure functions, synchronous localStorage reads, no Svelte imports
 
+import { safeGetItem } from '$lib/utils/storage';
+
 // ─── Types ───
 
-interface CheckInRecord {
+export interface CheckInRecord {
 	energy: 'low' | 'medium' | 'high';
 	emotions: string[];
 	habits: Record<string, boolean>;
 	timestamp: string;
 }
 
-interface HabitLogRecord {
+export interface HabitLogRecord {
 	habitId: string;
 	date: string;
 	completed: boolean;
 }
 
-interface HabitDefinitionRecord {
+export interface HabitDefinitionRecord {
 	id: string;
 	name: string;
 	emoji: string;
@@ -24,7 +26,7 @@ interface HabitDefinitionRecord {
 	isDefault?: boolean;
 }
 
-interface JournalRecord {
+export interface JournalRecord {
 	id: string;
 	text: string;
 	createdAt: string;
@@ -46,9 +48,10 @@ function formatDate(d: Date): string {
 
 function loadCheckins(): CheckInRecord[] {
 	if (typeof window === 'undefined') return [];
+	const raw = safeGetItem(CHECKINS_KEY);
 	try {
-		const raw = localStorage.getItem(CHECKINS_KEY);
-		return raw ? JSON.parse(raw) : [];
+		const parsed: unknown = raw ? JSON.parse(raw) : [];
+		return Array.isArray(parsed) ? (parsed as CheckInRecord[]) : [];
 	} catch {
 		return [];
 	}
@@ -56,9 +59,10 @@ function loadCheckins(): CheckInRecord[] {
 
 function loadHabitLogs(): HabitLogRecord[] {
 	if (typeof window === 'undefined') return [];
+	const raw = safeGetItem(HABIT_LOGS_KEY);
 	try {
-		const raw = localStorage.getItem(HABIT_LOGS_KEY);
-		return raw ? JSON.parse(raw) : [];
+		const parsed: unknown = raw ? JSON.parse(raw) : [];
+		return Array.isArray(parsed) ? (parsed as HabitLogRecord[]) : [];
 	} catch {
 		return [];
 	}
@@ -66,9 +70,10 @@ function loadHabitLogs(): HabitLogRecord[] {
 
 function loadJournalEntries(): JournalRecord[] {
 	if (typeof window === 'undefined') return [];
+	const raw = safeGetItem(JOURNAL_KEY);
 	try {
-		const raw = localStorage.getItem(JOURNAL_KEY);
-		return raw ? JSON.parse(raw) : [];
+		const parsed: unknown = raw ? JSON.parse(raw) : [];
+		return Array.isArray(parsed) ? (parsed as JournalRecord[]) : [];
 	} catch {
 		return [];
 	}
@@ -86,9 +91,10 @@ function getDefaultHabitsLocal(): HabitDefinitionRecord[] {
 
 function getCustomHabitsLocal(): HabitDefinitionRecord[] {
 	if (typeof window === 'undefined') return [];
+	const raw = safeGetItem(CUSTOM_HABITS_KEY);
 	try {
-		const raw = localStorage.getItem(CUSTOM_HABITS_KEY);
-		return raw ? JSON.parse(raw) : [];
+		const parsed: unknown = raw ? JSON.parse(raw) : [];
+		return Array.isArray(parsed) ? (parsed as HabitDefinitionRecord[]) : [];
 	} catch {
 		return [];
 	}

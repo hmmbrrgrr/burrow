@@ -1,17 +1,19 @@
 <!-- StickerGrid.svelte — Grid display of collected stickers with locked/unlocked states -->
 <script lang="ts">
-	import { STICKER_CATALOG, CATEGORIES, getEarnedStickerIds, type Sticker } from '$lib/services/stickers';
+	import { STICKER_CATALOG, CATEGORIES, getEarnedStickerIds, getAllStickers, type Sticker } from '$lib/services/stickers';
 
 	let { onStickerReveal }: { onStickerReveal?: (sticker: Sticker) => void } = $props();
 
 	let activeCategory = $state<string>('all');
-	let earnedIds = $state<string[]>(getEarnedStickerIds());
+	let earnedIds = $state<string[]>(getEarnedStickerIds() ?? []);
 	let selectedSticker = $state<Sticker | null>(null);
+
+	const catalog = $derived(getAllStickers());
 
 	const filteredStickers = $derived(
 		activeCategory === 'all'
-			? STICKER_CATALOG
-			: STICKER_CATALOG.filter((s) => s.category === activeCategory)
+			? catalog
+			: catalog.filter((s) => s.category === activeCategory)
 	);
 
 	const earnedCount = $derived(earnedIds.length);
@@ -68,6 +70,14 @@
 	</div>
 
 	<!-- Sticker Grid -->
+	{#if filteredStickers.length === 0}
+		<div class="text-center py-8">
+			<p class="text-3xl mb-2">🌱</p>
+			<p class="font-serif text-earth-brown/60 text-sm">
+				{activeCategory === 'all' ? 'No stickers available yet.' : 'No stickers in this category yet.'}
+			</p>
+		</div>
+	{:else}
 	<div class="grid grid-cols-4 sm:grid-cols-6 gap-3">
 		{#each filteredStickers as sticker (sticker.id)}
 			{@const isEarned = earnedIds.includes(sticker.id)}
@@ -88,6 +98,14 @@
 			</button>
 		{/each}
 	</div>
+	{/if}
+
+	<!-- Empty earned hint -->
+	{#if earnedCount === 0}
+		<p class="text-center text-earth-brown/50 text-sm font-sans mt-4 italic">
+			No stickers earned yet — complete check-ins, journal entries, and exercises to start collecting!
+		</p>
+	{/if}
 
 	<!-- Selected sticker detail -->
 	{#if selectedSticker}

@@ -1,5 +1,7 @@
 // habits.ts — Service layer for habit tracking with streaks and weekly views
 
+import { safeGetItem, safeSetItem } from '$lib/utils/storage';
+
 // ─── Types ───
 
 export interface HabitDefinition {
@@ -46,8 +48,8 @@ export function getDefaultHabits(): HabitDefinition[] {
 // ─── Custom Habits ───
 
 export function getCustomHabits(): HabitDefinition[] {
+	const raw = safeGetItem(CUSTOM_HABITS_KEY);
 	try {
-		const raw = localStorage.getItem(CUSTOM_HABITS_KEY);
 		return raw ? JSON.parse(raw) : [];
 	} catch {
 		return [];
@@ -62,16 +64,16 @@ export function saveCustomHabit(habit: Omit<HabitDefinition, 'createdAt'>): Habi
 		createdAt: new Date().toISOString(),
 	};
 	customs.push(newHabit);
-	localStorage.setItem(CUSTOM_HABITS_KEY, JSON.stringify(customs));
+	safeSetItem(CUSTOM_HABITS_KEY, JSON.stringify(customs));
 	return newHabit;
 }
 
 export function deleteCustomHabit(habitId: string): void {
 	const customs = getCustomHabits().filter((h) => h.id !== habitId);
-	localStorage.setItem(CUSTOM_HABITS_KEY, JSON.stringify(customs));
+	safeSetItem(CUSTOM_HABITS_KEY, JSON.stringify(customs));
 	// Also clean up logs for this habit
 	const logs = getAllLogs().filter((l) => l.habitId !== habitId);
-	localStorage.setItem(HABIT_LOGS_KEY, JSON.stringify(logs));
+	safeSetItem(HABIT_LOGS_KEY, JSON.stringify(logs));
 }
 
 export function getAllHabits(): HabitDefinition[] {
@@ -81,8 +83,8 @@ export function getAllHabits(): HabitDefinition[] {
 // ─── Habit Logs ───
 
 function getAllLogs(): HabitLog[] {
+	const raw = safeGetItem(HABIT_LOGS_KEY);
 	try {
-		const raw = localStorage.getItem(HABIT_LOGS_KEY);
 		return raw ? JSON.parse(raw) : [];
 	} catch {
 		return [];
@@ -108,7 +110,7 @@ export function logHabit(habitId: string, date: string, completed: boolean): voi
 		logs.push({ habitId, date, completed: true });
 	}
 
-	localStorage.setItem(HABIT_LOGS_KEY, JSON.stringify(logs));
+	safeSetItem(HABIT_LOGS_KEY, JSON.stringify(logs));
 }
 
 export function isHabitCompletedOn(habitId: string, date: string): boolean {

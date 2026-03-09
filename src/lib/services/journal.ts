@@ -1,5 +1,7 @@
 // journal.ts — localStorage-backed journal service
 
+import { safeGetItem, safeSetItem } from '$lib/utils/storage';
+
 const STORAGE_KEY = 'burrow-journal';
 
 export interface JournalEntry {
@@ -16,12 +18,16 @@ function generateId(): string {
 
 function loadEntries(): JournalEntry[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(STORAGE_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(STORAGE_KEY);
+	try {
+		return raw ? JSON.parse(raw) : [];
+	} catch {
+		return [];
+	}
 }
 
 function persist(entries: JournalEntry[]): void {
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+	safeSetItem(STORAGE_KEY, JSON.stringify(entries));
 }
 
 export function saveEntry(entry: Omit<JournalEntry, 'id'>): JournalEntry {
@@ -67,19 +73,23 @@ export function saveDump(text: string): BrainDump {
 	const dumps = getDumps();
 	const dump: BrainDump = { id: generateId(), text, createdAt: new Date().toISOString() };
 	dumps.unshift(dump);
-	localStorage.setItem(DUMP_KEY, JSON.stringify(dumps));
+	safeSetItem(DUMP_KEY, JSON.stringify(dumps));
 	return dump;
 }
 
 export function getDumps(): BrainDump[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(DUMP_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(DUMP_KEY);
+	try {
+		return raw ? JSON.parse(raw) : [];
+	} catch {
+		return [];
+	}
 }
 
 export function deleteDump(id: string): void {
 	const dumps = getDumps().filter((d) => d.id !== id);
-	localStorage.setItem(DUMP_KEY, JSON.stringify(dumps));
+	safeSetItem(DUMP_KEY, JSON.stringify(dumps));
 }
 
 // Breathing session tracking
@@ -96,11 +106,41 @@ export interface BreathingSession {
 export function saveBreathingSession(session: Omit<BreathingSession, 'id'>): void {
 	const sessions = getBreathingSessions();
 	sessions.unshift({ ...session, id: generateId() });
-	localStorage.setItem(BREATHING_KEY, JSON.stringify(sessions));
+	safeSetItem(BREATHING_KEY, JSON.stringify(sessions));
 }
 
 export function getBreathingSessions(): BreathingSession[] {
 	if (typeof window === 'undefined') return [];
-	const raw = localStorage.getItem(BREATHING_KEY);
-	return raw ? JSON.parse(raw) : [];
+	const raw = safeGetItem(BREATHING_KEY);
+	try {
+		return raw ? JSON.parse(raw) : [];
+	} catch {
+		return [];
+	}
+}
+
+// Focus session tracking
+const FOCUS_KEY = 'burrow-focus-sessions';
+
+export interface FocusSession {
+	id: string;
+	durationMinutes: number;
+	mode: string;
+	completedAt: string;
+}
+
+export function saveFocusSession(durationMinutes: number, mode: string): void {
+	const sessions = getFocusSessions();
+	sessions.unshift({ id: generateId(), durationMinutes, mode, completedAt: new Date().toISOString() });
+	safeSetItem(FOCUS_KEY, JSON.stringify(sessions));
+}
+
+export function getFocusSessions(): FocusSession[] {
+	if (typeof window === 'undefined') return [];
+	const raw = safeGetItem(FOCUS_KEY);
+	try {
+		return raw ? JSON.parse(raw) : [];
+	} catch {
+		return [];
+	}
 }

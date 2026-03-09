@@ -2,14 +2,17 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import NewBadge from './NewBadge.svelte';
-	import { getNewUnlocks } from '$lib/services/unlocks';
+	import { getNewUnlocks, isUnlocked } from '$lib/services/unlocks';
 
-	const tabs = [
+	const allTabs = [
 		{ href: '/', label: 'Home', icon: '\uD83C\uDFE1', featureIds: ['cottage', 'garden'] },
 		{ href: '/toolbox', label: 'Toolbox', icon: '\uD83E\uDDF0', featureIds: ['checkin', 'breathing', 'habits', 'exercises'] },
 		{ href: '/journal', label: 'Journal', icon: '\uD83D\uDCD3', featureIds: ['journal'] },
 		{ href: '/stickers', label: 'Stickers', icon: '\u2B50', featureIds: ['stickers'] },
 	];
+
+	// Only show tabs where at least one feature is unlocked
+	let tabs = $derived(allTabs.filter((tab) => tab.featureIds.some((id) => isUnlocked(id))));
 
 	let newUnlocks = $derived(getNewUnlocks());
 
@@ -32,7 +35,7 @@
 		<!-- Sliding active indicator -->
 		<div
 			class="tab-indicator"
-			style="transform: translateX({activeIndex * 100}%);"
+			style="transform: translateX({activeIndex * 100}%); width: calc(100% / {tabs.length});"
 		></div>
 		{#each tabs as tab}
 			<a
@@ -59,7 +62,6 @@
 		position: absolute;
 		bottom: 0;
 		left: 0;
-		width: calc(100% / 4);
 		height: 4px;
 		display: flex;
 		justify-content: center;

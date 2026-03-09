@@ -1,6 +1,8 @@
 // unlocks.ts — Progressive disclosure system
 // Features unlock over 30 days to avoid overwhelming ADHD brains on day 1
 
+import { safeGetItem, safeSetItem } from '$lib/utils/storage';
+
 export interface FeatureUnlock {
 	id: string;
 	name: string;
@@ -41,15 +43,34 @@ const SEEN_UNLOCKS_KEY = 'burrow-seen-unlocks';
 
 export function getFirstOpenDate(): Date | null {
 	if (typeof localStorage === 'undefined') return null;
-	const stored = localStorage.getItem(FIRST_OPEN_KEY);
-	return stored ? new Date(stored) : null;
+	const stored = safeGetItem(FIRST_OPEN_KEY);
+	if (!stored) return null;
+	const date = new Date(stored);
+	if (isNaN(date.getTime())) {
+		// Invalid date — reset to now
+		safeSetItem(FIRST_OPEN_KEY, new Date().toISOString());
+		return new Date();
+	}
+	if (date.getTime() > Date.now()) {
+		// Future date — reset to now (clock was wrong or data corrupted)
+		const now = new Date();
+		safeSetItem(FIRST_OPEN_KEY, now.toISOString());
+		return now;
+	}
+	return date;
 }
 
 export function setFirstOpenDate(): void {
 	if (typeof localStorage === 'undefined') return;
-	if (!localStorage.getItem(FIRST_OPEN_KEY)) {
-		localStorage.setItem(FIRST_OPEN_KEY, new Date().toISOString());
+	const stored = safeGetItem(FIRST_OPEN_KEY);
+	if (!stored) {
+		// First time — set to now (day 0)
+		safeSetItem(FIRST_OPEN_KEY, new Date().toISOString());
+		return;
 	}
+	// Validate existing value — getFirstOpenDate() handles invalid/future dates
+	// by resetting them, so just call it to trigger self-healing
+	getFirstOpenDate();
 }
 
 export function getDaysSinceFirstOpen(): number {
@@ -57,7 +78,10 @@ export function getDaysSinceFirstOpen(): number {
 	if (!firstOpen) return 0;
 	const now = new Date();
 	const diffMs = now.getTime() - firstOpen.getTime();
-	return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	// Clamp to 0 — negative days should never happen after getFirstOpenDate()
+	// resets future dates, but belt-and-suspenders for safety
+	return Math.max(0, days);
 }
 
 export function getUnlockedFeatures(): FeatureUnlock[] {
@@ -83,8 +107,9 @@ export function isUnlocked(featureId: string): boolean {
 
 function getSeenUnlockIds(): string[] {
 	if (typeof localStorage === 'undefined') return [];
-	const stored = localStorage.getItem(SEEN_UNLOCKS_KEY);
-	return stored ? JSON.parse(stored) : [];
+	const stored = safeGetItem(SEEN_UNLOCKS_KEY);
+	if (!stored) return [];
+	try { return JSON.parse(stored); } catch { return []; }
 }
 
 export function getNewUnlocks(): FeatureUnlock[] {
@@ -98,6 +123,6 @@ export function markUnlockSeen(featureId: string): void {
 	const seen = getSeenUnlockIds();
 	if (!seen.includes(featureId)) {
 		seen.push(featureId);
-		localStorage.setItem(SEEN_UNLOCKS_KEY, JSON.stringify(seen));
+		safeSetItem(SEEN_UNLOCKS_KEY, JSON.stringify(seen));
 	}
 }
