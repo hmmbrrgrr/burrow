@@ -1,6 +1,6 @@
 <!-- TabBar.svelte — Bottom navigation tab bar (Home, Toolbox, Journal, Stickers) -->
 <script lang="ts">
-	import { page } from '$app/state';
+	import { page } from '$app/stores';
 
 	const tabs = [
 		{ href: '/', label: 'Home', icon: '🏡' },
@@ -15,7 +15,7 @@
 		{#each tabs as tab}
 			<a
 				href={tab.href}
-				class="flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-sans transition-colors {page.url.pathname === tab.href ? 'text-ember-orange' : 'text-earth-brown/60'}"
+				class="flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-sans transition-colors {$page.url.pathname === tab.href ? 'text-ember-orange' : 'text-earth-brown/60'}"
 			>
 				<span class="text-xl">{tab.icon}</span>
 				<span>{tab.label}</span>

@@ -38,7 +38,7 @@
 		<!-- 7. Front trees -->
 		<Trees layer="front" />
 		<!-- 8. Companion (Ember) -->
-		<Companion state={appState.emberState} message={appState.emberMessage} />
+		<Companion mood={appState.emberState} message={appState.emberMessage} />
 		<!-- 9. Particles overlay -->
 		<Particles {time} />
 	</svg>

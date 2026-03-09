@@ -3,12 +3,12 @@
 	import type { EmberState } from '$lib/types/ember';
 
 	interface Props {
-		state?: EmberState;
+		mood?: EmberState;
 		message?: string;
 		messageDuration?: number;
 	}
 
-	let { state = 'idle', message = '', messageDuration = 4000 }: Props = $props();
+	let { mood = 'idle', message = '', messageDuration = 4000 }: Props = $props();
 
 	let showMessage = $state(false);
 	let currentMessage = $state('');
@@ -41,13 +41,13 @@
 
 <g
 	class="ember"
-	class:idle={state === 'idle'}
-	class:happy={state === 'happy'}
-	class:sleeping={state === 'sleeping'}
-	class:waving={state === 'waving'}
-	class:celebrating={state === 'celebrating'}
-	class:thinking={state === 'thinking'}
-	class:sad={state === 'sad'}
+	class:idle={mood === 'idle'}
+	class:happy={mood === 'happy'}
+	class:sleeping={mood === 'sleeping'}
+	class:waving={mood === 'waving'}
+	class:celebrating={mood === 'celebrating'}
+	class:thinking={mood === 'thinking'}
+	class:sad={mood === 'sad'}
 	transform="translate(360, 440)"
 >
 	<!-- Tail — bushy with alternating rings -->
