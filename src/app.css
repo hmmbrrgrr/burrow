@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+	--color-parchment: #F5EBD8;
+	--color-parchment-dark: #EDE0C8;
+	--color-ember-orange: #E8945A;
+	--color-forest-green: #8BAF7C;
+	--color-lavender: #B5A0D1;
+	--color-earth-brown: #5C4D3C;
+	--color-warm-gold: #F2C94C;
+	--color-wood: #C4956A;
+	--color-wood-dark: #8B5E3C;
+	--color-sky-blue: #9EC5D6;
+	--color-rose: #E88A8A;
+	--color-sage: #98BF82;
+
+	--font-sans: 'Nunito', sans-serif;
+	--font-serif: 'Fraunces', serif;
+}
