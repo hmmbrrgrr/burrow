@@ -84,4 +84,13 @@
 		0%, 100% { transform: rotate(-1.5deg); }
 		50% { transform: rotate(1.5deg); }
 	}
+
+	/* ===== REDUCED MOTION ===== */
+	/* Disable tree sway — purely ambient */
+	@media (prefers-reduced-motion: reduce) {
+		.canopy-1, .canopy-2, .canopy-3, .canopy-4, .canopy-5 {
+			animation: none !important;
+			transform: rotate(0deg);
+		}
+	}
 </style>

@@ -66,7 +66,7 @@
 
 	.title {
 		font-family: 'Lora', 'Georgia', serif;
-		font-size: var(--text-sm, 0.72rem);
+		font-size: 1.125rem;
 		color: #C4A882;
 		font-weight: 600;
 		margin: 0 0 12px;

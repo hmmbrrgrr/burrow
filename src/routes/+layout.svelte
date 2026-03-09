@@ -4,8 +4,6 @@
 	import TabBar from '$lib/components/ui/TabBar.svelte';
 	import FAB from '$lib/components/ui/FAB.svelte';
 	import CheckInSheet from '$lib/components/checkin/CheckInSheet.svelte';
-	import BreathingExercise from '$lib/components/toolbox/BreathingExercise.svelte';
-	import BrainDump from '$lib/components/toolbox/BrainDump.svelte';
 	import { appState } from '$lib/stores/app.svelte';
 	import { getTimeOfDay } from '$lib/utils/time';
 	import { page } from '$app/stores';
@@ -35,22 +33,30 @@
 	<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet" />
 </svelte:head>
 
-<div class="app min-h-screen bg-parchment font-sans text-earth-brown" data-time={timeOfDay}>
-	<main class="pb-20 break-words">
+<div class="app min-h-screen bg-parchment font-sans text-earth-brown overflow-x-hidden" data-time={timeOfDay}>
+	<main class="break-words overflow-x-hidden" id="main-content" style="padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));">
 		{#key $page.url.pathname}
 			<div class="page-transition">
 				{@render children()}
 			</div>
 		{/key}
 	</main>
+	<TabBar />
 	<FAB
 		onvoice={() => { brainDumpOpen = true; }}
 		oncheckin={() => { appState.isCheckInOpen = true; }}
 		onbreathe={() => { breathingOpen = true; }}
 	/>
-	<TabBar />
 </div>
 
 <CheckInSheet bind:open={appState.isCheckInOpen} />
-<BreathingExercise bind:open={breathingOpen} />
-<BrainDump bind:open={brainDumpOpen} startWithVoice={true} />
+{#if breathingOpen}
+	{#await import('$lib/components/toolbox/BreathingExercise.svelte') then { default: BreathingExercise }}
+		<BreathingExercise bind:open={breathingOpen} />
+	{/await}
+{/if}
+{#if brainDumpOpen}
+	{#await import('$lib/components/toolbox/BrainDump.svelte') then { default: BrainDump }}
+		<BrainDump bind:open={brainDumpOpen} startWithVoice={true} />
+	{/await}
+{/if}

@@ -14,9 +14,27 @@
 	let dragStartY = $state(0);
 	let dragOffset = $state(0);
 	let isDragging = $state(false);
+	let previouslyFocusedEl: HTMLElement | null = null;
+
+	// Focus management: move focus into sheet on open, restore on close
+	$effect(() => {
+		if (open && sheetEl) {
+			previouslyFocusedEl = document.activeElement as HTMLElement | null;
+			// Tick delay to let animation start
+			requestAnimationFrame(() => sheetEl?.focus());
+		}
+		if (!open && previouslyFocusedEl) {
+			previouslyFocusedEl.focus();
+			previouslyFocusedEl = null;
+		}
+	});
 
 	const maxHeight = $derived(
-		height === 'full' ? '95vh' : height === 'half' ? '50vh' : '85vh'
+		height === 'full'
+			? 'calc(100dvh - env(safe-area-inset-top, 0px) - 20px)'
+			: height === 'half'
+				? '50dvh'
+				: 'calc(100dvh - env(safe-area-inset-top, 0px) - 20px)'
 	);
 
 	function onTouchStart(e: TouchEvent) {
@@ -43,7 +61,15 @@
 	function onBackdropClick() {
 		open = false;
 	}
+
+	function onKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			open = false;
+		}
+	}
 </script>
+
+<svelte:window onkeydown={open ? onKeydown : undefined} />
 
 {#if open}
 	<!-- Backdrop -->
@@ -65,6 +91,7 @@
 		ontouchend={onTouchEnd}
 		role="dialog"
 		aria-modal="true"
+		aria-labelledby="sheet-title"
 		tabindex="-1"
 	>
 		<!-- Drag handle -->
@@ -104,10 +131,23 @@
 		background: #F5EBD8;
 		border-radius: 16px 16px 0 0;
 		box-shadow: 0 -4px 24px rgba(92, 77, 60, 0.15);
-		overflow-y: auto;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		overscroll-behavior: contain;
 		animation: sheet-spring 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 		transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 		will-change: transform;
+		/* iPad/desktop centering */
+		max-width: 560px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	@media (min-width: 1024px) {
+		.sheet {
+			max-width: 640px;
+		}
 	}
 
 	.sheet.dragging {
@@ -136,7 +176,13 @@
 	.sheet-content {
 		padding: 8px 24px 32px;
 		/* Safe area for bottom-of-screen phones */
-		padding-bottom: max(32px, env(safe-area-inset-bottom));
+		padding-bottom: max(32px, env(safe-area-inset-bottom, 0px));
 		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+		flex: 1 1 auto;
+		min-height: 0;
+		box-sizing: border-box;
 	}
 </style>

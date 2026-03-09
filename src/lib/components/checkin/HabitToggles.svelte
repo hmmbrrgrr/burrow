@@ -41,6 +41,9 @@
 				class="habit-card"
 				class:active={completed[habit.id]}
 				onclick={() => toggle(habit.id)}
+				role="switch"
+				aria-checked={completed[habit.id] ?? false}
+				aria-label={habit.label}
 			>
 				<span class="habit-info">
 					<span class="emoji">{habit.emoji}</span>
@@ -75,7 +78,7 @@
 
 	.hint {
 		font-family: var(--font-sans);
-		font-size: 0.75rem;
+		font-size: 0.875rem;
 		color: rgba(92, 77, 60, 0.5);
 		margin: 0 0 16px;
 	}
@@ -117,7 +120,7 @@
 
 	.label {
 		font-family: var(--font-sans);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		font-weight: 600;
 		color: #5C4D3C;
 	}
@@ -159,7 +162,7 @@
 		border: none;
 		background: none;
 		font-family: var(--font-sans);
-		font-size: 0.8rem;
+		font-size: 0.875rem;
 		color: rgba(92, 77, 60, 0.5);
 		cursor: pointer;
 		text-decoration: underline;

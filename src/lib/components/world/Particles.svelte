@@ -15,7 +15,7 @@
 	let fireflyCount = $derived(isNight ? 8 : isDusk ? 4 : 0);
 </script>
 
-<g class="particles">
+<g class="particles" aria-hidden="true">
 	{#if showLeaves}
 		<g class="leaf leaf-1">
 			<ellipse cx="150" cy="200" rx="4" ry="2" fill="#98BF82" opacity="0.6" transform="rotate(30)" />
@@ -46,6 +46,9 @@
 </g>
 
 <style>
+	.leaf-1, .leaf-2, .leaf-3, .leaf-4 {
+		will-change: transform, opacity;
+	}
 	.leaf-1 { animation: leaf-drift-1 12s ease-in-out infinite; }
 	.leaf-2 { animation: leaf-drift-2 15s ease-in-out infinite; animation-delay: -4s; }
 	.leaf-3 { animation: leaf-drift-3 18s ease-in-out infinite; animation-delay: -8s; }
@@ -74,6 +77,7 @@
 
 	.firefly {
 		animation: firefly-glow 2s ease-in-out infinite;
+		will-change: transform, opacity;
 	}
 	.firefly-1 { animation: firefly-float-1 6s ease-in-out infinite, firefly-glow 2s ease-in-out infinite; }
 	.firefly-2 { animation: firefly-float-2 7s ease-in-out infinite, firefly-glow 2.5s ease-in-out infinite; animation-delay: -1s; }
@@ -105,5 +109,20 @@
 		25% { transform: translate(8px, 10px); }
 		50% { transform: translate(-10px, -12px); }
 		75% { transform: translate(5px, -18px); }
+	}
+
+	/* ===== REDUCED MOTION ===== */
+	/* Disable all particle animations — leaves and fireflies are purely ambient */
+	@media (prefers-reduced-motion: reduce) {
+		.leaf-1, .leaf-2, .leaf-3, .leaf-4 {
+			animation: none !important;
+			opacity: 0.5;
+		}
+		.firefly,
+		.firefly-1, .firefly-2, .firefly-3, .firefly-4,
+		.firefly-5, .firefly-6, .firefly-7, .firefly-8 {
+			animation: none !important;
+			opacity: 0.6;
+		}
 	}
 </style>

@@ -27,7 +27,7 @@
 	--color-ember-orange: #E8945A;
 	--color-forest-green: #8BAF7C;
 	--color-lavender: #B5A0D1;
-	--color-earth-brown: #5C4D3C;
+	--color-earth-brown: #4A3D2E;
 	--color-warm-gold: #F2C94C;
 	--color-wood: #C4956A;
 	--color-wood-dark: #8B5E3C;
@@ -39,11 +39,43 @@
 	--font-serif: 'Fraunces', serif;
 }
 
+/* ──── Global Typography ──── */
+html {
+	font-size: 16px;
+	-webkit-text-size-adjust: 100%;
+	overflow-x: hidden;
+	max-width: 100%;
+}
+
+@media (max-width: 360px) {
+	html { font-size: 14px; }
+	h1 { font-size: 1.4rem; }
+}
+
+/* ──── Global Body ──── */
+body {
+	min-height: 100dvh;
+	max-width: 100%;
+	width: 100%;
+	background: var(--color-parchment);
+	overflow-x: hidden;
+	overscroll-behavior-x: none;
+	box-sizing: border-box;
+}
+
+/* Prevent horizontal scrollbar on all pages */
+[data-sveltekit-preload-data],
+[data-sveltekit-preload-data] > div {
+	overflow-x: hidden;
+	max-width: 100%;
+}
+
 /* ──── Accessibility: Reduced Motion ──── */
+/* Granular approach: disable ambient/decorative animations, preserve functional ones */
+/* (check-in transitions, bottom sheet slides, modal overlays, page transitions) */
 @media (prefers-reduced-motion: reduce) {
-	*, *::before, *::after {
-		animation-duration: 0.01ms !important;
-		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
+	:root {
+		--ambient-animation-duration: 0s;
+		--ambient-animation-play-state: paused;
 	}
 }

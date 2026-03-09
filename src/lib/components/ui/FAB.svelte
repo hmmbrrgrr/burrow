@@ -56,7 +56,7 @@
 	{/each}
 
 	<!-- Main FAB -->
-	<button class="fab-main" class:open={menuOpen} onclick={toggle} aria-label="Quick actions">
+	<button class="fab-main" class:open={menuOpen} onclick={toggle} aria-label={menuOpen ? 'Close quick actions menu' : 'Open quick actions menu'} aria-expanded={menuOpen}>
 		<span class="fab-icon">✦</span>
 	</button>
 </div>
@@ -70,13 +70,20 @@
 
 	.fab-container {
 		position: fixed;
-		bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+		bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 		right: 16px;
 		z-index: 30;
 		display: flex;
 		flex-direction: column-reverse;
 		align-items: center;
 		gap: 0;
+	}
+
+	/* Extra clearance on small mobile viewports where FAB overlaps tab bar */
+	@media (max-width: 767px) {
+		.fab-container {
+			bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+		}
 	}
 
 	.fab-main {
@@ -94,6 +101,7 @@
 		justify-content: center;
 		transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease;
 		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
 		z-index: 31;
 	}
 
@@ -127,6 +135,7 @@
 		transition-delay: var(--delay);
 		pointer-events: none;
 		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
 	}
 
 	.fab-mini.visible {

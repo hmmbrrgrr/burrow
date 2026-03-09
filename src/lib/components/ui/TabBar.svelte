@@ -27,7 +27,7 @@
 	);
 </script>
 
-<nav class="tab-bar fixed bottom-0 inset-x-0 z-20 bg-parchment border-t border-parchment-dark" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+<nav class="tab-bar fixed bottom-0 inset-x-0 z-20 border-t border-parchment-dark" aria-label="Main navigation" style="padding-bottom: env(safe-area-inset-bottom, 0px); background: rgba(245, 235, 216, 0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
 	<div class="tab-container flex justify-around py-2">
 		<!-- Sliding active indicator -->
 		<div
@@ -37,7 +37,9 @@
 		{#each tabs as tab}
 			<a
 				href={tab.href}
-				class="tab-link flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-sans transition-colors {isActive(tab.href, $page.url.pathname) ? 'text-ember-orange' : 'text-earth-brown/60'}"
+				class="tab-link flex flex-col items-center justify-center gap-0.5 px-3 py-2 min-h-[44px] min-w-[44px] text-sm font-sans transition-colors {isActive(tab.href, $page.url.pathname) ? 'text-ember-orange' : 'text-earth-brown/80'}"
+				aria-current={isActive(tab.href, $page.url.pathname) ? 'page' : undefined}
+				aria-label={tab.label}
 			>
 				<span class="tab-icon text-xl" class:tab-icon-active={isActive(tab.href, $page.url.pathname)}>
 					{tab.icon}
@@ -75,6 +77,9 @@
 		position: relative;
 		flex: 1;
 		z-index: 1;
+		min-height: 44px;
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
 	}
 	.tab-icon {
 		position: relative;

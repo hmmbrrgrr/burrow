@@ -9,6 +9,7 @@
 	import StickerReveal from '$lib/components/stickers/StickerReveal.svelte';
 	import { isUnlocked } from '$lib/services/unlocks';
 	import { checkStickers, getEarnedStickerIds, STICKER_CATALOG, type Sticker } from '$lib/services/stickers';
+	import { useVisibility } from '$lib/utils/visibility';
 
 	let stickersUnlocked = $derived(isUnlocked('stickers'));
 	let earnedCount = $derived(getEarnedStickerIds().length);
@@ -32,16 +33,16 @@
 	}
 </script>
 
-<div class="stickers-page min-h-screen bg-parchment pb-24">
+<div class="stickers-page min-h-screen bg-parchment pb-24" use:useVisibility>
 	{#if stickersUnlocked}
 		{#if earnedCount === 0}
 			<div class="empty-collection">
 				<!-- Floating icon with sparkle decorations -->
-				<div class="empty-icon-wrap">
+				<div class="empty-icon-wrap" aria-hidden="true">
 					<span class="twinkle twinkle-1">✨</span>
 					<span class="twinkle twinkle-2">✨</span>
 					<span class="twinkle twinkle-3">✨</span>
-					<svg class="empty-illustration" viewBox="0 0 160 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg class="empty-illustration" viewBox="0 0 160 150" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Empty sticker album">
 						<!-- Album/book shape -->
 						<rect x="30" y="35" width="100" height="85" rx="8" fill="#EDE0C8" stroke="#C4B396" stroke-width="1.5" />
 						<!-- Album cover detail -->
@@ -66,6 +67,7 @@
 						<circle cx="55" cy="132" r="1.5" fill="#8BAF7C" opacity="0.3" class="sparkle sparkle-3" />
 					</svg>
 				</div>
+				<span class="sr-only">Decorative sticker album illustration with sparkles</span>
 				<p class="empty-title font-serif text-lg text-earth-brown">Your Collection Awaits</p>
 				<p class="empty-hint font-sans text-sm text-earth-brown/50">
 					Complete check-ins and journal entries to earn stickers!
@@ -173,5 +175,22 @@
 	@keyframes sparkle-pulse {
 		0%, 100% { opacity: 0.2; transform: scale(0.8); }
 		50% { opacity: 0.7; transform: scale(1.3); }
+	}
+
+	/* Responsive max-width for stickers page content */
+	.stickers-page {
+		max-width: 720px;
+		margin: 0 auto;
+	}
+
+	@media (min-width: 1440px) {
+		.stickers-page {
+			max-width: 960px;
+		}
+	}
+
+	/* Pause all child animations when offscreen */
+	.stickers-page:global([data-visible='false']) :global(*) {
+		animation-play-state: paused !important;
 	}
 </style>

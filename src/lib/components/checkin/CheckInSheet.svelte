@@ -85,10 +85,11 @@
 
 <BottomSheet bind:open height="auto">
 	<!-- Step dots -->
-	<div class="step-dots">
+	<div class="step-dots" role="group" aria-label="Check-in progress">
 		{#each [1, 2, 3] as dot}
-			<span class="dot" class:active={step >= dot} class:current={step === dot}></span>
+			<span class="dot" class:active={step >= dot} class:current={step === dot} role="presentation" aria-hidden="true"></span>
 		{/each}
+		<span class="sr-only">Step {step} of 3</span>
 	</div>
 
 	<!-- Step content with slide transition -->
@@ -101,7 +102,7 @@
 			<div class="step-pane" class:slide-in-left={slideDir === 'left'}>
 				<EmotionFlowers bind:selected={emotions} />
 				{#if emotions.length > 0}
-					<button class="next-btn" onclick={nextStep}>
+					<button class="next-btn" onclick={nextStep} aria-label="Next step: habits">
 						Next
 					</button>
 				{/if}
@@ -109,7 +110,7 @@
 		{:else if step === 3}
 			<div class="step-pane" class:slide-in-left={slideDir === 'left'}>
 				<HabitToggles bind:completed={habits} onskip={finish} />
-				<button class="done-btn" onclick={finish}>
+				<button class="done-btn" onclick={finish} aria-label="Finish check-in">
 					Done
 				</button>
 			</div>
@@ -123,11 +124,24 @@
 </BottomSheet>
 
 <style>
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
 	.step-dots {
 		display: flex;
 		justify-content: center;
 		gap: 8px;
 		margin-bottom: 20px;
+		position: relative;
 	}
 
 	.dot {
@@ -150,6 +164,16 @@
 	.steps-container {
 		min-height: 200px;
 		position: relative;
+	}
+
+	/* Compact layout for small viewports like iPhone SE */
+	@media (max-height: 700px) {
+		.steps-container {
+			min-height: 140px;
+		}
+		.step-dots {
+			margin-bottom: 12px;
+		}
 	}
 
 	.step-pane {
@@ -181,6 +205,16 @@
 		cursor: pointer;
 		transition: transform 0.15s ease, box-shadow 0.15s ease;
 		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
+		min-height: 44px;
+	}
+
+	@media (max-height: 700px) {
+		.next-btn,
+		.done-btn {
+			margin-top: 12px;
+			padding: 10px;
+		}
 	}
 
 	.next-btn {

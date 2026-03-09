@@ -85,13 +85,13 @@
 	}
 
 	.streak-count {
-		font-size: var(--text-sm, 0.72rem);
+		font-size: 0.875rem;
 		font-weight: 700;
 		color: #E8945A;
 	}
 
 	.streak-message {
-		font-size: var(--text-xs, 0.65rem);
+		font-size: 0.875rem;
 		color: var(--text-muted, #8A8A95);
 		opacity: 0.7;
 	}

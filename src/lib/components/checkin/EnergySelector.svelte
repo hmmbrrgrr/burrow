@@ -28,6 +28,8 @@
 				class:selected={value === opt.id}
 				style="--accent: {opt.color}; --accent-bg: {opt.bg};"
 				onclick={() => select(opt.id)}
+				aria-pressed={value === opt.id}
+				aria-label="{opt.label} energy - {opt.sublabel}"
 			>
 				<span class="emoji">{opt.emoji}</span>
 				<span class="label">{opt.label}</span>
@@ -45,7 +47,7 @@
 	.heading {
 		font-family: var(--font-serif);
 		font-size: 1.25rem;
-		color: #5C4D3C;
+		color: var(--color-earth-brown);
 		margin: 0 0 20px;
 		font-weight: 600;
 	}
@@ -54,6 +56,7 @@
 		display: flex;
 		gap: 12px;
 		justify-content: center;
+		flex-wrap: wrap;
 	}
 
 	.energy-card {
@@ -62,6 +65,7 @@
 		align-items: center;
 		gap: 6px;
 		width: 100px;
+		min-height: 44px;
 		padding: 16px 8px;
 		border: 2px solid transparent;
 		border-radius: 12px 16px 10px 14px;
@@ -71,6 +75,8 @@
 			border-color 0.2s ease,
 			box-shadow 0.2s ease;
 		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
+		min-width: 44px;
 	}
 
 	.energy-card:active {
@@ -92,12 +98,24 @@
 		font-family: var(--font-sans);
 		font-weight: 700;
 		font-size: 0.9rem;
-		color: #5C4D3C;
+		color: var(--color-earth-brown);
 	}
 
 	.sublabel {
 		font-family: var(--font-sans);
-		font-size: 0.7rem;
-		color: rgba(92, 77, 60, 0.6);
+		font-size: 0.875rem;
+		color: #70614F;
+	}
+
+	@media (max-width: 359px) {
+		.options {
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.energy-card {
+			width: 100%;
+			max-width: 200px;
+		}
 	}
 </style>

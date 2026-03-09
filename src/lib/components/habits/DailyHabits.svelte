@@ -102,7 +102,7 @@
 		border-radius: 20px 18px 22px 16px;
 		background: rgba(92, 77, 60, 0.15);
 		color: rgba(255, 255, 255, 0.7);
-		font-size: 0.72rem;
+		font-size: 0.875rem;
 		font-family: var(--font-display, system-ui, sans-serif);
 		cursor: pointer;
 		white-space: nowrap;
@@ -146,7 +146,7 @@
 
 		.habit-pill {
 			padding: 5px 10px;
-			font-size: 0.65rem;
+			font-size: 0.875rem;
 		}
 	}
 </style>

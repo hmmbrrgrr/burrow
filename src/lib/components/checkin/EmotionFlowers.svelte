@@ -36,6 +36,8 @@
 				class:bloomed={selected.includes(emo.id)}
 				style="--accent: {emo.color};"
 				onclick={() => toggle(emo.id)}
+				aria-label="{emo.label}{selected.includes(emo.id) ? ' (selected)' : ''}"
+				aria-pressed={selected.includes(emo.id)}
 			>
 				<span class="emoji">{emo.emoji}</span>
 				<span class="label">{emo.label}</span>
@@ -52,15 +54,15 @@
 	.heading {
 		font-family: var(--font-serif);
 		font-size: 1.25rem;
-		color: #5C4D3C;
+		color: var(--color-earth-brown);
 		margin: 0 0 4px;
 		font-weight: 600;
 	}
 
 	.hint {
 		font-family: var(--font-sans);
-		font-size: 0.75rem;
-		color: rgba(92, 77, 60, 0.5);
+		font-size: 0.875rem;
+		color: #70614F;
 		margin: 0 0 16px;
 	}
 
@@ -68,6 +70,19 @@
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
 		gap: 10px;
+		overflow-y: auto;
+		max-height: 40dvh;
+		overscroll-behavior: contain;
+		box-sizing: border-box;
+		width: 100%;
+	}
+
+	@media (max-width: 359px) {
+		.grid {
+			grid-template-columns: repeat(2, 1fr);
+			overflow-y: auto;
+			max-height: 50dvh;
+		}
 	}
 
 	.flower-card {
@@ -85,6 +100,9 @@
 			background 0.2s ease,
 			box-shadow 0.2s ease;
 		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
+		min-height: 44px;
+		min-width: 44px;
 	}
 
 	.flower-card:active {
@@ -110,8 +128,8 @@
 
 	.label {
 		font-family: var(--font-sans);
-		font-size: 0.7rem;
+		font-size: 0.875rem;
 		font-weight: 600;
-		color: #5C4D3C;
+		color: var(--color-earth-brown);
 	}
 </style>

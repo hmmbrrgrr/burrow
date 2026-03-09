@@ -83,7 +83,7 @@
 <style>
 	.title {
 		font-family: 'Fraunces', serif;
-		font-size: 0.875rem;
+		font-size: 1.125rem;
 		color: #5C4D3C;
 		text-align: left;
 		margin-bottom: 10px;

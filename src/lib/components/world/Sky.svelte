@@ -93,12 +93,15 @@
 <style>
 	.cloud-1 {
 		animation: drift1 45s linear infinite;
+		will-change: transform;
 	}
 	.cloud-2 {
 		animation: drift2 55s linear infinite;
+		will-change: transform;
 	}
 	.cloud-3 {
 		animation: drift3 38s linear infinite;
+		will-change: transform;
 	}
 
 	@keyframes drift1 {
@@ -138,5 +141,30 @@
 	@keyframes twinkle {
 		0%, 100% { opacity: 0.4; }
 		50% { opacity: 1; }
+	}
+
+	/* ===== REDUCED MOTION ===== */
+	/* Disable cloud drift and star twinkle; keep time-of-day transitions */
+	@media (prefers-reduced-motion: reduce) {
+		.cloud-1, .cloud-2, .cloud-3 {
+			animation: none !important;
+			/* Park clouds at their midpoint positions */
+			transform: translate(400px, 50px);
+		}
+		.cloud-2 { transform: translate(400px, 85px); }
+		.cloud-3 { transform: translate(400px, 65px); }
+		.star {
+			animation: none !important;
+			opacity: 0.7;
+		}
+		/* Preserve functional time-of-day transitions */
+		.sun-group, .moon-group {
+			transition-duration: 2s !important;
+			transition-timing-function: ease-in-out !important;
+		}
+		.stars {
+			transition-duration: 2s !important;
+			transition-timing-function: ease-in-out !important;
+		}
 	}
 </style>

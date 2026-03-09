@@ -407,7 +407,8 @@
 							{#if snap.strengths.length > 0}<span class="history-count">💪 {snap.strengths.length}</span>{/if}
 						</div>
 						{#if expandedSnapshotId === snap.id}
-							<div class="history-details" onclick={(e) => e.stopPropagation()}>
+							<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+							<div class="history-details" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="region" aria-label="Snapshot details">
 								{#if snap.resentments.length > 0}
 									<div class="history-section">
 										<h4 class="history-section-title">😤 Resentments</h4>
@@ -726,8 +727,9 @@
 					{/if}
 
 					<div class="intention-group">
-						<label class="intention-label">One small thing to work on</label>
+						<label class="intention-label" for="intention-input">One small thing to work on</label>
 						<textarea
+							id="intention-input"
 							class="entry-textarea"
 							rows={2}
 							placeholder="One small step I can take..."
@@ -920,19 +922,6 @@
 		border-right: 6px solid rgba(255, 255, 255, 0.6);
 	}
 
-	/* ─── Section Placeholder ─── */
-	.section-placeholder {
-		width: 100%;
-		background: rgba(255, 255, 255, 0.4);
-		border: 1.5px dashed rgba(92, 77, 60, 0.15);
-		border-radius: 16px;
-		padding: 40px 24px;
-		text-align: center;
-		min-height: 200px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
 
 	.placeholder-text {
 		font-size: 0.9rem;

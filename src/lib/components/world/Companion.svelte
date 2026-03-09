@@ -10,6 +10,16 @@
 
 	let { mood = 'idle', message = '', messageDuration = 6000 }: Props = $props();
 
+	const moodDescriptions: Record<EmberState, string> = {
+		idle: 'Ember is relaxing',
+		happy: 'Ember is happy',
+		sleeping: 'Ember is sleeping',
+		waving: 'Ember is waving hello',
+		celebrating: 'Ember is celebrating',
+		thinking: 'Ember is thinking',
+		sad: 'Ember is feeling sad',
+	};
+
 	let showMessage = $state(false);
 	let currentMessage = $state('');
 	$effect(() => {
@@ -50,9 +60,11 @@
 	class:thinking={mood === 'thinking'}
 	class:sad={mood === 'sad'}
 	transform="translate(360, 440)"
+	role="img"
+	aria-label="Ember the fox companion, currently {mood}"
 >
 	<!-- Body shadow -->
-	<ellipse class="body-shadow" cx="0" cy="14" rx="20" ry="4" fill="#5C4D3C" />
+	<ellipse class="body-shadow" cx="0" cy="15" rx="22" ry="5" fill="rgba(10, 6, 2, 0.45)" />
 
 	<!-- Tail — bushy with alternating rings -->
 	<g class="tail">
@@ -170,20 +182,29 @@
 	<g class="accessory"></g>
 </g>
 
+<!-- Screen-reader-only mood description -->
+<foreignObject x="0" y="0" width="1" height="1" aria-hidden="false">
+	<span class="sr-only">{moodDescriptions[mood] ?? `Ember is ${mood}`}{#if showMessage}, saying: {currentMessage}{/if}</span>
+</foreignObject>
+
 <style>
 	/* ===== BASE TRANSITIONS ===== */
 	.ember {
 		transition: transform 0.3s ease;
+		will-change: transform;
 	}
 	.ember .body,
 	.ember .head,
 	.ember .tail,
+	.ember .paws-front,
+	.ember .paw-left,
+	.ember .paw-right {
+		transition: transform 0.3s ease, opacity 0.3s ease;
+		will-change: transform;
+	}
 	.ember .ears,
 	.ember .eyes,
 	.ember .mouth,
-	.ember .paws-front,
-	.ember .paw-left,
-	.ember .paw-right,
 	.ember .ear-left,
 	.ember .ear-right,
 	.ember .eye-left,
@@ -206,7 +227,7 @@
 		transform-origin: 0px 0px;
 	}
 	.idle .tail {
-		animation: idle-tail 3s ease-in-out infinite;
+		animation: idle-tail 3s linear infinite;
 		transform-origin: 15px 10px;
 	}
 	.idle .ear-left,
@@ -223,8 +244,10 @@
 		50% { transform: scaleY(0.97); }
 	}
 	@keyframes idle-tail {
-		0% { transform: rotate(-8deg); }
-		50% { transform: rotate(8deg); }
+		0% { transform: rotate(-8deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+		25% { transform: rotate(0deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+		50% { transform: rotate(8deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+		75% { transform: rotate(0deg); animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
 		100% { transform: rotate(-8deg); }
 	}
 	@keyframes idle-ear-twitch {
@@ -438,12 +461,11 @@
 		background: #F5EBD8;
 		color: #5C4D3C;
 		font-family: var(--font-sans);
-		font-size: 9px;
+		font-size: 11px;
 		line-height: 1.3;
 		padding: 6px 8px;
 		border-radius: 8px;
 		position: relative;
-		filter: url(#hand-drawn);
 		max-width: 100px;
 		animation: bubble-enter 0.3s ease-out;
 	}
@@ -484,9 +506,77 @@
 		52% { transform: scaleY(1); }
 	}
 
+	/* ===== SCREEN READER ONLY ===== */
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
+	}
+
 	/* ===== BODY SHADOW ===== */
 	.body-shadow {
-		filter: blur(2px);
-		opacity: 0.15;
+		filter: blur(3px);
+		opacity: 0.35;
+	}
+
+	/* ===== REDUCED MOTION ===== */
+	/* Disable ambient animations but keep mood state transitions (transforms, opacity) */
+	@media (prefers-reduced-motion: reduce) {
+		/* Kill ambient breathing, tail wag, ear twitch */
+		.idle .body,
+		.idle .tail,
+		.idle .ear-left,
+		.idle .ear-right,
+		.idle .eye-left,
+		.idle .eye-right,
+		.sleeping .body,
+		.sleeping .z1,
+		.sleeping .z2,
+		.sleeping .z3,
+		.waving .paw-right,
+		.waving .body,
+		.waving .tail,
+		.happy .body,
+		.happy .tail,
+		.celebrating .body,
+		.celebrating .tail,
+		.celebrating .h1,
+		.celebrating .h2,
+		.celebrating .h3,
+		.celebrating .h4,
+		.celebrating .h5,
+		.thinking .tail,
+		.thinking .body {
+			animation: none !important;
+		}
+		/* Keep mood state transitions working (transform changes between states) */
+		.ember,
+		.ember .body,
+		.ember .head,
+		.ember .tail,
+		.ember .ears,
+		.ember .eyes,
+		.ember .mouth,
+		.ember .paws-front,
+		.ember .paw-left,
+		.ember .paw-right,
+		.ember .ear-left,
+		.ember .ear-right,
+		.ember .eye-left,
+		.ember .eye-right {
+			transition-duration: 0.3s !important;
+		}
+		.sleeping-eyes,
+		.zzz,
+		.thought-bubble,
+		.hearts {
+			transition-duration: 0.3s !important;
+		}
 	}
 </style>

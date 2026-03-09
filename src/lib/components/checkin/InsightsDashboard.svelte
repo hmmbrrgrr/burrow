@@ -28,7 +28,7 @@
 	}
 </script>
 
-<div class="insights-backdrop" class:visible onclick={handleClose}></div>
+<div class="insights-backdrop" class:visible onclick={handleClose} onkeydown={(e) => e.key === 'Escape' && handleClose()} role="button" tabindex="-1" aria-label="Close insights backdrop"></div>
 
 <div class="insights-dashboard" class:visible>
 	<!-- Handle bar -->

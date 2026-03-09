@@ -165,12 +165,17 @@
 		overflow-y: auto;
 		overflow-x: hidden;
 		background: var(--bg, #06060A);
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	.world-section {
 		position: relative;
 		width: 100%;
-		height: 100dvh;
+		max-width: 100%;
+		min-height: 0;
+		overflow: hidden;
+		box-sizing: border-box;
 	}
 
 	.streak-overlay {
@@ -183,7 +188,7 @@
 
 	.insights-btn {
 		position: fixed;
-		bottom: calc(max(24px, env(safe-area-inset-bottom, 24px)) + 48px);
+		bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 30;
@@ -191,12 +196,13 @@
 		border: none;
 		color: rgba(255, 255, 255, 0.5);
 		font-family: var(--font-sans);
-		font-size: 0.72rem;
+		font-size: 0.875rem;
 		font-weight: 500;
 		text-decoration: underline;
 		text-underline-offset: 2px;
 		cursor: pointer;
-		padding: 4px 12px;
+		padding: 12px 20px;
+		min-height: 44px;
 		transition: color 0.2s ease;
 		-webkit-tap-highlight-color: transparent;
 	}
@@ -207,7 +213,7 @@
 
 	.habits-overlay {
 		position: fixed;
-		bottom: calc(max(24px, env(safe-area-inset-bottom, 24px)) + 80px);
+		bottom: calc(120px + env(safe-area-inset-bottom, 0px));
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 15;
@@ -219,11 +225,12 @@
 
 	.checkin-btn {
 		position: fixed;
-		bottom: max(24px, env(safe-area-inset-bottom, 24px));
+		bottom: calc(64px + env(safe-area-inset-bottom, 0px));
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 30;
 		padding: 14px 32px;
+		min-height: 44px;
 		border: none;
 		border-radius: 14px 18px 12px 16px;
 		background: #E8945A;
@@ -236,6 +243,7 @@
 		transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
 			box-shadow 0.2s ease;
 		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
 	}
 
 	.checkin-btn:active {
@@ -244,16 +252,19 @@
 
 	.checkin-indicator {
 		position: fixed;
-		bottom: max(24px, env(safe-area-inset-bottom, 24px));
+		bottom: calc(64px + env(safe-area-inset-bottom, 0px));
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 30;
 		padding: 10px 24px;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
 		border-radius: 14px 18px 12px 16px;
 		background: rgba(139, 175, 124, 0.9);
 		color: white;
 		font-family: var(--font-sans);
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		font-weight: 600;
 		pointer-events: none;
 	}

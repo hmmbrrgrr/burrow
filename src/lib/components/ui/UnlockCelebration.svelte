@@ -128,7 +128,7 @@
 		background: #E8945A;
 		color: white;
 		font-family: var(--font-sans);
-		font-size: 0.7rem;
+		font-size: 0.875rem;
 		font-weight: 700;
 		padding: 3px 10px;
 		border-radius: 10px;

@@ -25,11 +25,8 @@
 	</radialGradient>
 </defs>
 
-<g class="cottage" transform="translate(240, 330)" filter="url(#hand-drawn)">
-	<!-- Chimney -->
-	<rect x="48" y="-30" width="10" height="22" rx="2" fill="#8B5E3C" />
-
-	<!-- Smoke particles — organic overlapping ellipses drifting upward -->
+<g class="cottage" transform="translate(240, 330)">
+	<!-- Smoke particles — outside filtered group to avoid filter+animation conflict -->
 	<g class="smoke">
 		<ellipse class="smoke-1" cx="53" cy="-35" rx="4" ry="3" fill="#D4D0C8" opacity="0.4" />
 		<ellipse class="smoke-2" cx="55" cy="-40" rx="5.5" ry="3.5" fill="#C8C4BC" opacity="0.35" />
@@ -39,6 +36,11 @@
 		<ellipse class="smoke-6" cx="56" cy="-44" rx="5" ry="3.5" fill="#DCD8D0" opacity="0.25" />
 		<ellipse class="smoke-7" cx="50" cy="-39" rx="3" ry="2" fill="#D4D0C8" opacity="0.4" />
 	</g>
+
+	<!-- Static cottage structure — hand-drawn filter applied here only -->
+	<g filter="url(#hand-drawn)">
+	<!-- Chimney -->
+	<rect x="48" y="-30" width="10" height="22" rx="2" fill="#8B5E3C" />
 
 	<!-- Roof — thatched, slightly asymmetric -->
 	<path
@@ -83,9 +85,29 @@
 	<rect class="window-pane" x="51" y="13" width="11" height="11" rx="1" fill="url(#window-glow)" opacity={windowGlow} />
 	<line x1="56.5" y1="13" x2="56.5" y2="24" stroke="#5C4D3C" stroke-width="1" />
 	<line x1="51" y1="18.5" x2="62" y2="18.5" stroke="#5C4D3C" stroke-width="1" />
+
+	<!-- Flower box under left window -->
+	<rect x="7" y="26" width="15" height="4" rx="1" fill="#8B5E3C" />
+	<rect x="7.5" y="26.5" width="14" height="3" rx="0.5" fill="#7A4E2C" />
+	<!-- Flower 1 — orange -->
+	<line x1="10" y1="26" x2="10" y2="22" stroke="#5A8A3C" stroke-width="0.8" />
+	<circle cx="10" cy="21.5" r="1.8" fill="#E8945A" />
+	<circle cx="10" cy="21.5" r="0.8" fill="#F2C94C" />
+	<!-- Flower 2 — purple -->
+	<line x1="14.5" y1="26" x2="14.5" y2="20.5" stroke="#5A8A3C" stroke-width="0.8" />
+	<circle cx="14.5" cy="20" r="2" fill="#B088D0" />
+	<circle cx="14.5" cy="20" r="0.9" fill="#E8D5F5" />
+	<!-- Flower 3 — red/pink -->
+	<line x1="19" y1="26" x2="19" y2="21.5" stroke="#5A8A3C" stroke-width="0.8" />
+	<circle cx="19" cy="21" r="1.6" fill="#E86B6B" />
+	<circle cx="19" cy="21" r="0.7" fill="#F2C94C" />
+	</g>
 </g>
 
 <style>
+	[class^="smoke-"] {
+		will-change: transform, opacity;
+	}
 	.smoke-1 {
 		animation: smoke-drift-a 6s ease-in-out infinite;
 	}
@@ -178,5 +200,15 @@
 	.window-glow-halo {
 		transition: opacity 2s ease;
 		filter: blur(6px);
+	}
+
+	/* ===== REDUCED MOTION ===== */
+	/* Disable ambient smoke animations; window glow transitions are functional, keep them */
+	@media (prefers-reduced-motion: reduce) {
+		.smoke-1, .smoke-2, .smoke-3, .smoke-4,
+		.smoke-5, .smoke-6, .smoke-7 {
+			animation: none !important;
+			opacity: 0.3;
+		}
 	}
 </style>
