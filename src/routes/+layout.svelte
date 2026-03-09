@@ -3,8 +3,14 @@
 	import '../app.css';
 	import TabBar from '$lib/components/ui/TabBar.svelte';
 	import FAB from '$lib/components/ui/FAB.svelte';
+	import BreathingExercise from '$lib/components/toolbox/BreathingExercise.svelte';
+	import BrainDump from '$lib/components/toolbox/BrainDump.svelte';
+	import { appState } from '$lib/stores/app.svelte';
 
 	let { children } = $props();
+
+	let breathingOpen = $state(false);
+	let brainDumpOpen = $state(false);
 
 	// TODO: Auth guard — redirect to login if not authenticated
 	// TODO: Drive data-time from getTimeOfDay()
@@ -20,6 +26,13 @@
 	<main class="pb-20">
 		{@render children()}
 	</main>
-	<FAB onclick={() => { /* TODO: Open voice input or check-in */ }} />
+	<FAB
+		onvoice={() => { brainDumpOpen = true; }}
+		oncheckin={() => { appState.isCheckInOpen = true; }}
+		onbreathe={() => { breathingOpen = true; }}
+	/>
 	<TabBar />
 </div>
+
+<BreathingExercise bind:open={breathingOpen} />
+<BrainDump bind:open={brainDumpOpen} startWithVoice={true} />
