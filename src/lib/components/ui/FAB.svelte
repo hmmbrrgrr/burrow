@@ -70,7 +70,7 @@
 
 	.fab-container {
 		position: fixed;
-		bottom: 76px;
+		bottom: calc(76px + env(safe-area-inset-bottom, 0px));
 		right: 16px;
 		z-index: 30;
 		display: flex;

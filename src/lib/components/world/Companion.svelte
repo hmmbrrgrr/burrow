@@ -8,11 +8,10 @@
 		messageDuration?: number;
 	}
 
-	let { mood = 'idle', message = '', messageDuration = 4000 }: Props = $props();
+	let { mood = 'idle', message = '', messageDuration = 6000 }: Props = $props();
 
 	let showMessage = $state(false);
 	let currentMessage = $state('');
-
 	$effect(() => {
 		if (message) {
 			currentMessage = message;
@@ -25,6 +24,8 @@
 			showMessage = false;
 		}
 	});
+
+
 </script>
 
 <!-- Speech bubble (HTML overlay positioned via foreignObject) -->
@@ -50,6 +51,9 @@
 	class:sad={mood === 'sad'}
 	transform="translate(360, 440)"
 >
+	<!-- Body shadow -->
+	<ellipse class="body-shadow" cx="0" cy="14" rx="20" ry="4" fill="#5C4D3C" />
+
 	<!-- Tail — bushy with alternating rings -->
 	<g class="tail">
 		<ellipse cx="30" cy="10" rx="16" ry="7" fill="#E8945A" transform="rotate(25, 30, 10)" />
@@ -124,8 +128,8 @@
 
 		<!-- Sleeping eyes (hidden by default) -->
 		<g class="sleeping-eyes">
-			<path d="-7,-1 Q -5,1 -3,-1" fill="none" stroke="#5C4D3C" stroke-width="1.2" stroke-linecap="round" />
-			<path d="3,-1 Q 5,1 7,-1" fill="none" stroke="#5C4D3C" stroke-width="1.2" stroke-linecap="round" />
+			<path d="M -7,-1 Q -5,1 -3,-1" fill="none" stroke="#5C4D3C" stroke-width="1.2" stroke-linecap="round" />
+			<path d="M 3,-1 Q 5,1 7,-1" fill="none" stroke="#5C4D3C" stroke-width="1.2" stroke-linecap="round" />
 		</g>
 
 		<!-- Nose -->
@@ -202,7 +206,7 @@
 		transform-origin: 0px 0px;
 	}
 	.idle .tail {
-		animation: idle-tail 4s ease-in-out infinite;
+		animation: idle-tail 3s ease-in-out infinite;
 		transform-origin: 15px 10px;
 	}
 	.idle .ear-left,
@@ -219,8 +223,9 @@
 		50% { transform: scaleY(0.97); }
 	}
 	@keyframes idle-tail {
-		0%, 100% { transform: rotate(-3deg); }
-		50% { transform: rotate(3deg); }
+		0% { transform: rotate(-8deg); }
+		50% { transform: rotate(8deg); }
+		100% { transform: rotate(-8deg); }
 	}
 	@keyframes idle-ear-twitch {
 		0%, 85%, 100% { transform: rotate(0deg); }
@@ -460,5 +465,28 @@
 	@keyframes bubble-enter {
 		0% { opacity: 0; transform: translateY(5px); }
 		100% { opacity: 1; transform: translateY(0); }
+	}
+
+	/* ===== EYE BLINK (CSS animation) ===== */
+	.idle .eye-left {
+		animation: blink 4s ease-in-out infinite;
+		transform-origin: center;
+	}
+	.idle .eye-right {
+		animation: blink 4s ease-in-out infinite;
+		animation-delay: 0.05s;
+		transform-origin: center;
+	}
+
+	@keyframes blink {
+		0%, 45%, 55%, 100% { transform: scaleY(1); }
+		48% { transform: scaleY(0.1); }
+		52% { transform: scaleY(1); }
+	}
+
+	/* ===== BODY SHADOW ===== */
+	.body-shadow {
+		filter: blur(2px);
+		opacity: 0.15;
 	}
 </style>

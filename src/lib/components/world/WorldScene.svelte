@@ -21,7 +21,7 @@
 </script>
 
 <div class="world-scene">
-	<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" class="world-svg">
+	<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" width="100%" class="world-svg">
 		<SvgFilters />
 		<!-- 1. Sky background -->
 		<Sky {time} />

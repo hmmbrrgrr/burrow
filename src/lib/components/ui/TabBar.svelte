@@ -16,16 +16,30 @@
 	function tabHasNew(featureIds: string[]): boolean {
 		return newUnlocks.some((u) => featureIds.includes(u.id));
 	}
+
+	function isActive(href: string, pathname: string): boolean {
+		if (href === '/') return pathname === '/';
+		return pathname === href || pathname.startsWith(href + '/');
+	}
+
+	let activeIndex = $derived(
+		tabs.findIndex((tab) => isActive(tab.href, $page.url.pathname))
+	);
 </script>
 
-<nav class="tab-bar fixed bottom-0 inset-x-0 z-20 bg-parchment border-t border-parchment-dark">
-	<div class="flex justify-around py-2">
+<nav class="tab-bar fixed bottom-0 inset-x-0 z-20 bg-parchment border-t border-parchment-dark" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+	<div class="tab-container flex justify-around py-2">
+		<!-- Sliding active indicator -->
+		<div
+			class="tab-indicator"
+			style="transform: translateX({activeIndex * 100}%);"
+		></div>
 		{#each tabs as tab}
 			<a
 				href={tab.href}
-				class="tab-link flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-sans transition-colors {$page.url.pathname === tab.href ? 'text-ember-orange' : 'text-earth-brown/60'}"
+				class="tab-link flex flex-col items-center gap-0.5 px-3 py-1 text-xs font-sans transition-colors {isActive(tab.href, $page.url.pathname) ? 'text-ember-orange' : 'text-earth-brown/60'}"
 			>
-				<span class="tab-icon text-xl">
+				<span class="tab-icon text-xl" class:tab-icon-active={isActive(tab.href, $page.url.pathname)}>
 					{tab.icon}
 					<NewBadge show={tabHasNew(tab.featureIds)} />
 				</span>
@@ -36,11 +50,38 @@
 </nav>
 
 <style>
+	.tab-container {
+		position: relative;
+	}
+	.tab-indicator {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: calc(100% / 4);
+		height: 4px;
+		display: flex;
+		justify-content: center;
+		transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+	.tab-indicator::after {
+		content: '';
+		width: 24px;
+		height: 4px;
+		border-radius: 9999px;
+		background: var(--color-ember-orange, #E8945A);
+		box-shadow: 0 0 8px rgba(232, 148, 90, 0.4);
+	}
 	.tab-link {
 		position: relative;
+		flex: 1;
+		z-index: 1;
 	}
 	.tab-icon {
 		position: relative;
 		display: inline-block;
+		transition: transform 0.2s ease;
+	}
+	.tab-icon-active {
+		transform: scale(1.1);
 	}
 </style>

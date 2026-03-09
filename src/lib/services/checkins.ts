@@ -1,6 +1,8 @@
 // checkins.ts — Service layer for checkins functionality
 // localStorage for now, Supabase integration later
 
+import { logHabit, getTodayStr } from './habits';
+
 export interface CheckInData {
 	energy: 'low' | 'medium' | 'high';
 	emotions: string[];
@@ -14,6 +16,12 @@ export function submitCheckin(data: CheckInData): void {
 	const checkins = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 	checkins.push({ ...data, timestamp: data.timestamp.toISOString() });
 	localStorage.setItem(STORAGE_KEY, JSON.stringify(checkins));
+
+	// Sync habits to the unified habit-logs store
+	const today = getTodayStr();
+	for (const [habitId, completed] of Object.entries(data.habits)) {
+		logHabit(habitId, today, completed);
+	}
 }
 
 export function getTodayCheckin(): CheckInData | null {
@@ -21,6 +29,12 @@ export function getTodayCheckin(): CheckInData | null {
 	const today = new Date().toDateString();
 	const found = checkins.find((c: any) => new Date(c.timestamp).toDateString() === today);
 	return found || null;
+}
+
+export function getAllCheckIns(): CheckInData[] {
+	if (typeof window === 'undefined') return [];
+	const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+	return raw.map((c: any) => ({ ...c, timestamp: new Date(c.timestamp) }));
 }
 
 export function hasCheckedInToday(): boolean {

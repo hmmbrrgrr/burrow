@@ -5,7 +5,7 @@ let listening = false;
 
 export function isSupported(): boolean {
 	if (typeof window === 'undefined') return false;
-	return !!(window.SpeechRecognition || (window as any).webkitSpeechRecognition);
+	return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 }
 
 export function isListening(): boolean {
@@ -24,7 +24,7 @@ export function startListening(
 
 	stopListening();
 
-	const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+	const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 	recognition = new SpeechRecognition();
 	recognition.continuous = options?.continuous ?? false;
 	recognition.interimResults = false;

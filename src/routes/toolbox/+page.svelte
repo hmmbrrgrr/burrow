@@ -1,3 +1,7 @@
+<svelte:head>
+	<title>Toolbox — Burrow</title>
+</svelte:head>
+
 <!-- Toolbox page — ADHD coping tools grid -->
 <script lang="ts">
 	import { isUnlocked } from '$lib/services/unlocks';
@@ -6,10 +10,24 @@
 	import BreathingExercise from '$lib/components/toolbox/BreathingExercise.svelte';
 	import FocusTimer from '$lib/components/toolbox/FocusTimer.svelte';
 	import BrainDump from '$lib/components/toolbox/BrainDump.svelte';
+	import GroundingExercise from '$lib/components/toolbox/GroundingExercise.svelte';
+	import BodyDoubling from '$lib/components/toolbox/BodyDoubling.svelte';
+	import EmotionWheel from '$lib/components/toolbox/EmotionWheel.svelte';
+	import ThoughtReframe from '$lib/components/toolbox/ThoughtReframe.svelte';
+	import HabitTracker from '$lib/components/toolbox/HabitTracker.svelte';
+	import WindDown from '$lib/components/toolbox/WindDown.svelte';
+	import PersonalInventory from '$lib/components/toolbox/PersonalInventory.svelte';
 
 	let breathingOpen = $state(false);
 	let timerOpen = $state(false);
 	let brainDumpOpen = $state(false);
+	let groundingOpen = $state(false);
+	let bodyDoublingOpen = $state(false);
+	let emotionWheelOpen = $state(false);
+	let thoughtReframeOpen = $state(false);
+	let habitTrackerOpen = $state(false);
+	let windDownOpen = $state(false);
+	let inventoryOpen = $state(false);
 
 	interface ToolItem {
 		id: string;
@@ -71,6 +89,69 @@
 			shadow: 'rgba(158, 197, 214, 0.15)',
 			action: () => { brainDumpOpen = true; },
 		},
+		{
+			id: 'grounding',
+			icon: '🌍',
+			name: 'Grounding',
+			description: 'Land in the moment',
+			color: '#B5A0D1',
+			shadow: 'rgba(181, 160, 209, 0.15)',
+			action: () => { groundingOpen = true; },
+		},
+		{
+			id: 'bodydoubling',
+			icon: '🤝',
+			name: 'Body Doubling',
+			description: 'Work with Ember',
+			color: '#98BF82',
+			shadow: 'rgba(152, 191, 130, 0.15)',
+			action: () => { bodyDoublingOpen = true; },
+		},
+		{
+			id: 'emotiongarden',
+			icon: '🌻',
+			name: 'Emotion Garden',
+			description: "What's blooming?",
+			color: '#F2C94C',
+			shadow: 'rgba(242, 201, 76, 0.15)',
+			action: () => { emotionWheelOpen = true; },
+		},
+		{
+			id: 'thoughtreframe',
+			icon: '💭',
+			name: 'Thought Reframe',
+			description: 'A kinder lens',
+			color: '#B5A0D1',
+			shadow: 'rgba(181, 160, 209, 0.15)',
+			action: () => { thoughtReframeOpen = true; },
+		},
+		{
+			id: 'habits',
+			icon: '🔥',
+			name: 'Habits',
+			description: 'Your daily wins',
+			color: '#E8945A',
+			shadow: 'rgba(232, 148, 90, 0.15)',
+			action: () => { habitTrackerOpen = true; },
+		},
+		{
+			id: 'winddown',
+			icon: '🌙',
+			name: 'Wind Down',
+			description: 'Settle in for the night',
+			color: '#5C4D3C',
+			shadow: 'rgba(92, 77, 60, 0.15)',
+			action: () => { windDownOpen = true; },
+		},
+		{
+			id: 'inventory',
+			icon: '📓',
+			name: 'Personal Inventory',
+			description: 'Guided self-reflection',
+			color: '#B5A0D1',
+			shadow: 'rgba(181, 160, 209, 0.15)',
+			action: () => { inventoryOpen = true; },
+		},
 	];
 
 	function isToolUnlocked(tool: ToolItem): boolean {
@@ -110,6 +191,13 @@
 <BreathingExercise bind:open={breathingOpen} />
 <FocusTimer bind:open={timerOpen} />
 <BrainDump bind:open={brainDumpOpen} />
+<GroundingExercise bind:open={groundingOpen} />
+<BodyDoubling bind:open={bodyDoublingOpen} />
+<EmotionWheel bind:open={emotionWheelOpen} />
+<ThoughtReframe bind:open={thoughtReframeOpen} />
+<HabitTracker bind:open={habitTrackerOpen} />
+<WindDown bind:open={windDownOpen} />
+<PersonalInventory bind:open={inventoryOpen} />
 
 <style>
 	.toolbox-page {
@@ -151,7 +239,7 @@
 	}
 
 	.tool-card:active {
-		transform: scale(0.96);
+		transform: scale(0.97);
 	}
 
 	.tool-card:hover {

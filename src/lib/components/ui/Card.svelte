@@ -3,6 +3,6 @@
 	let { children, class: className = '' }: { children: any; class?: string } = $props();
 </script>
 
-<div class="card bg-parchment rounded-2xl shadow-md p-4 {className}">
+<div class="card press-scale bg-parchment rounded-2xl shadow-md p-4 {className}">
 	{@render children()}
 </div>

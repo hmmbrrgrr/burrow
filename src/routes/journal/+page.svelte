@@ -1,3 +1,7 @@
+<svelte:head>
+	<title>Journal — Burrow</title>
+</svelte:head>
+
 <!-- Journal page — The Reading Nook -->
 <script lang="ts">
 	import { isUnlocked, getNextUnlock } from '$lib/services/unlocks';
@@ -136,8 +140,41 @@
 		<!-- Entries list -->
 		{#if entries.length === 0}
 			<div class="empty-state">
-				<p class="empty-icon">📚</p>
-				<p class="empty-text">Your nook is waiting for your first thought...</p>
+				<!-- Floating icon container -->
+				<div class="empty-icon-circle">
+					<svg class="empty-illustration" viewBox="0 0 160 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<!-- Book spine -->
+					<rect x="78" y="50" width="4" height="60" rx="2" fill="#8B7355" opacity="0.6" />
+					<!-- Left page -->
+					<path d="M78 50 C78 50, 76 48, 30 52 C24 52.5, 20 56, 20 60 L20 105 C20 108, 23 110, 28 110 L78 108 Z" fill="#F5EBD8" stroke="#C4B396" stroke-width="1.5" />
+					<!-- Right page -->
+					<path d="M82 50 C82 50, 84 48, 130 52 C136 52.5, 140 56, 140 60 L140 105 C140 108, 137 110, 132 110 L82 108 Z" fill="#F5EBD8" stroke="#C4B396" stroke-width="1.5" />
+					<!-- Left page lines -->
+					<line x1="35" y1="66" x2="70" y2="64" stroke="#C4B396" stroke-width="1" opacity="0.4" />
+					<line x1="35" y1="76" x2="68" y2="74" stroke="#C4B396" stroke-width="1" opacity="0.3" />
+					<line x1="35" y1="86" x2="65" y2="84" stroke="#C4B396" stroke-width="1" opacity="0.2" />
+					<!-- Right page lines -->
+					<line x1="90" y1="64" x2="125" y2="66" stroke="#C4B396" stroke-width="1" opacity="0.4" />
+					<line x1="92" y1="74" x2="125" y2="76" stroke="#C4B396" stroke-width="1" opacity="0.3" />
+					<line x1="94" y1="84" x2="125" y2="86" stroke="#C4B396" stroke-width="1" opacity="0.2" />
+					<!-- Sparkles -->
+					<g class="sparkle sparkle-1">
+						<path d="M50 30 L52 36 L58 38 L52 40 L50 46 L48 40 L42 38 L48 36 Z" fill="#E8945A" opacity="0.7" />
+					</g>
+					<g class="sparkle sparkle-2">
+						<path d="M115 24 L116.5 28 L120.5 29.5 L116.5 31 L115 35 L113.5 31 L109.5 29.5 L113.5 28 Z" fill="#B5A0D1" opacity="0.6" />
+					</g>
+					<g class="sparkle sparkle-3">
+						<path d="M80 18 L81 22 L85 23 L81 24 L80 28 L79 24 L75 23 L79 22 Z" fill="#8BAF7C" opacity="0.5" />
+					</g>
+					<!-- Quill pen -->
+					<path d="M130 20 C130 20, 128 30, 118 45 C116 48, 115 50, 115 50" stroke="#8B7355" stroke-width="1.5" fill="none" />
+					<path d="M130 20 C132 18, 136 16, 138 18 C140 20, 138 24, 136 26 C134 28, 130 20, 130 20 Z" fill="#E8945A" opacity="0.8" />
+					</svg>
+				</div>
+				<p class="empty-title">Your story begins here...</p>
+				<p class="empty-hint">Tap above to write your first thought</p>
+				<p class="empty-cta">Tap the pencil to begin...</p>
 			</div>
 		{:else}
 			<div class="entries-list">
@@ -289,13 +326,70 @@
 	.save-btn:disabled { opacity: 0.4; cursor: default; }
 
 	/* Empty state */
-	.empty-state { text-align: center; padding: 48px 20px; }
-	.empty-icon { font-size: 3rem; margin-bottom: 12px; }
-	.empty-text {
+	.empty-state {
+		text-align: center;
+		padding: 48px 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.empty-icon-circle {
+		width: 120px;
+		height: 120px;
+		border-radius: 50%;
+		background: rgba(237, 224, 200, 0.45);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 20px;
+		animation: float 3s ease-in-out infinite;
+		box-shadow: 0 4px 20px rgba(196, 179, 150, 0.15);
+	}
+	.empty-illustration {
+		width: 80px;
+		height: auto;
+	}
+	@keyframes float {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-6px); }
+	}
+	.empty-title {
 		font-family: var(--font-serif);
-		font-size: 1.1rem;
-		color: rgba(92, 77, 60, 0.5);
+		font-size: 1.2rem;
+		color: rgba(92, 77, 60, 0.6);
+		margin: 0 0 8px;
+		font-style: italic;
+	}
+	.empty-hint {
+		font-family: var(--font-serif);
+		font-size: 0.85rem;
+		color: rgba(92, 77, 60, 0.35);
+		margin: 0 0 12px;
+	}
+	.empty-cta {
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		color: rgba(92, 77, 60, 0.3);
 		margin: 0;
+		letter-spacing: 0.02em;
+		animation: fade-pulse 3s ease-in-out infinite;
+	}
+	@keyframes fade-pulse {
+		0%, 100% { opacity: 0.4; }
+		50% { opacity: 0.8; }
+	}
+
+	/* Sparkle animations */
+	.sparkle {
+		animation: sparkle-float 3s ease-in-out infinite;
+	}
+	.sparkle-1 { animation-delay: 0s; }
+	.sparkle-2 { animation-delay: 1s; }
+	.sparkle-3 { animation-delay: 2s; }
+
+	@keyframes sparkle-float {
+		0%, 100% { opacity: 0.3; transform: translateY(0) scale(0.8); }
+		50% { opacity: 1; transform: translateY(-4px) scale(1.1); }
 	}
 
 	/* Entries */
@@ -326,7 +420,7 @@
 		font-family: var(--font-sans);
 	}
 
-	.entry-card:active { transform: scale(0.99); }
+	.entry-card:active { transform: scale(0.97); }
 	.entry-card.expanded { box-shadow: 0 4px 16px rgba(181, 160, 209, 0.15); }
 
 	.entry-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }

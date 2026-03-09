@@ -1,7 +1,16 @@
 <!-- Toast.svelte — Animated toast notification for feedback messages -->
 <script lang="ts">
-	let { message = $bindable(''), visible = $bindable(false) }: { message: string; visible: boolean } = $props();
-	// TODO: Auto-dismiss after 3s, slide-up animation
+	let { message = $bindable(''), visible = $bindable(false), duration = 3000 }: { message: string; visible: boolean; duration?: number } = $props();
+
+	// Auto-dismiss after duration ms
+	$effect(() => {
+		if (visible && duration > 0) {
+			const timer = setTimeout(() => {
+				visible = false;
+			}, duration);
+			return () => clearTimeout(timer);
+		}
+	});
 </script>
 
 {#if visible}

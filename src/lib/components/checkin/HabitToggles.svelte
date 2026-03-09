@@ -1,5 +1,8 @@
 <!-- HabitToggles.svelte — Daily habit toggle cards with satisfying switches -->
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { getAllHabits, isHabitCompletedOn, getTodayStr } from '$lib/services/habits';
+
 	interface Props {
 		completed: Record<string, boolean>;
 		onskip?: () => void;
@@ -7,13 +10,21 @@
 
 	let { completed = $bindable<Record<string, boolean>>({}), onskip }: Props = $props();
 
-	const habits = [
-		{ id: 'medication', emoji: '\u{1F48A}', label: 'Took medication' },
-		{ id: 'exercise', emoji: '\u{1F3C3}', label: 'Exercised' },
-		{ id: 'sleep', emoji: '\u{1F634}', label: 'Slept well' },
-		{ id: 'no-sugar', emoji: '\u{1F6AB}\u{1F36C}', label: 'No sugar' },
-		{ id: 'no-alcohol', emoji: '\u{1F6AB}\u{1F377}', label: 'No alcohol' },
-	];
+	let habits: { id: string; emoji: string; label: string }[] = $state([]);
+
+	onMount(() => {
+		const today = getTodayStr();
+		const allHabits = getAllHabits();
+		habits = allHabits.map((h) => ({ id: h.id, emoji: h.emoji, label: h.name }));
+
+		// Pre-populate with today's logged values from the habits service
+		const initial: Record<string, boolean> = {};
+		for (const h of allHabits) {
+			initial[h.id] = isHabitCompletedOn(h.id, today);
+		}
+		// Merge: keep any already-set values, fill in from service
+		completed = { ...initial, ...completed };
+	});
 
 	function toggle(id: string) {
 		completed = { ...completed, [id]: !completed[id] };

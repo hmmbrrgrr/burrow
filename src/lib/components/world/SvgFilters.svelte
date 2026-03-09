@@ -7,7 +7,7 @@
 	<!-- Hand-drawn wobble effect -->
 	<filter id="hand-drawn">
 		<feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="3" result="turbulence" />
-		<feDisplacementMap in="SourceGraphic" in2="turbulence" scale="3" />
+		<feDisplacementMap in="SourceGraphic" in2="turbulence" scale="2" />
 	</filter>
 
 	<!-- Watercolor paint effect -->

@@ -114,6 +114,17 @@
 		100% { transform: translate(900px, 65px); }
 	}
 
+	/* Smooth transitions between time periods */
+	.sky :global(stop) {
+		transition: stop-color 2s ease-in-out;
+	}
+	.sun-group, .moon-group {
+		transition: transform 2s ease-in-out, opacity 2s ease-in-out;
+	}
+	.stars {
+		transition: opacity 2s ease-in-out;
+	}
+
 	.star {
 		animation: twinkle 3s ease-in-out infinite;
 	}

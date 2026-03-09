@@ -16,7 +16,7 @@
 	let isDragging = $state(false);
 
 	const maxHeight = $derived(
-		height === 'full' ? '95vh' : height === 'half' ? '50vh' : 'auto'
+		height === 'full' ? '95vh' : height === 'half' ? '50vh' : '85vh'
 	);
 
 	function onTouchStart(e: TouchEvent) {
@@ -87,7 +87,7 @@
 		background: rgba(92, 77, 60, 0.3);
 		border: none;
 		cursor: default;
-		animation: backdrop-in 0.3s ease-out forwards;
+		animation: backdrop-in 0.35s ease-out forwards;
 	}
 
 	@keyframes backdrop-in {
@@ -105,8 +105,8 @@
 		border-radius: 16px 16px 0 0;
 		box-shadow: 0 -4px 24px rgba(92, 77, 60, 0.15);
 		overflow-y: auto;
-		animation: sheet-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-		transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+		animation: sheet-spring 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 		will-change: transform;
 	}
 
@@ -114,7 +114,7 @@
 		transition: none;
 	}
 
-	@keyframes sheet-slide-up {
+	@keyframes sheet-spring {
 		from { transform: translateY(100%); }
 		to { transform: translateY(0); }
 	}
@@ -137,5 +137,6 @@
 		padding: 8px 24px 32px;
 		/* Safe area for bottom-of-screen phones */
 		padding-bottom: max(32px, env(safe-area-inset-bottom));
+		overflow-y: auto;
 	}
 </style>

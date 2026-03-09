@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/* ──── Page Transitions ──── */
+
+@keyframes page-fade-in {
+	from { opacity: 0; transform: translateY(4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.page-transition {
+	animation: page-fade-in 0.25s ease-out;
+}
+
+/* ──── Micro-animations ──── */
+
+/* Press scale — subtle shrink on tap/click for interactive elements */
+.press-scale {
+	transition: transform 0.15s ease;
+}
+.press-scale:active {
+	transform: scale(0.97);
+}
+
 @theme {
 	--color-parchment: #F5EBD8;
 	--color-parchment-dark: #EDE0C8;
@@ -16,4 +37,13 @@
 
 	--font-sans: 'Nunito', sans-serif;
 	--font-serif: 'Fraunces', serif;
+}
+
+/* ──── Accessibility: Reduced Motion ──── */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }
