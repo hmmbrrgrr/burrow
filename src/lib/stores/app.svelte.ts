@@ -11,4 +11,6 @@ export const appState = $state({
 	checkedInToday: false,
 	emberState: 'idle' as EmberState,
 	emberMessage: '',
+	daysSinceFirstOpen: 0,
+	unlockedFeatures: [] as string[],
 });

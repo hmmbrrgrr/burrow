@@ -3,17 +3,41 @@
 	import { onMount } from 'svelte';
 	import WorldScene from '$lib/components/world/WorldScene.svelte';
 	import CheckInSheet from '$lib/components/checkin/CheckInSheet.svelte';
+	import UnlockCelebration from '$lib/components/ui/UnlockCelebration.svelte';
 	import { hasCheckedInToday } from '$lib/services/checkins';
+	import {
+		setFirstOpenDate,
+		getDaysSinceFirstOpen,
+		getUnlockedFeatures,
+		getNewUnlocks,
+		markUnlockSeen,
+		type FeatureUnlock,
+	} from '$lib/services/unlocks';
 	import { appState } from '$lib/stores/app.svelte';
 
 	let checkInOpen = $state(false);
+	let celebrationQueue = $state<FeatureUnlock[]>([]);
+	let currentCelebration = $derived(celebrationQueue.length > 0 ? celebrationQueue[0] : null);
 
 	onMount(() => {
+		// Initialize first open date (no-op if already set)
+		setFirstOpenDate();
+
+		// Sync unlock state to global store
+		appState.daysSinceFirstOpen = getDaysSinceFirstOpen();
+		appState.unlockedFeatures = getUnlockedFeatures().map((f) => f.id);
+
+		// Check for new unlocks to celebrate
+		const newUnlocks = getNewUnlocks();
+		if (newUnlocks.length > 0) {
+			celebrationQueue = [...newUnlocks];
+		}
+
 		// Check localStorage for existing check-in
 		appState.checkedInToday = hasCheckedInToday();
 
-		// Auto-open if user hasn't checked in today
-		if (!appState.checkedInToday) {
+		// Auto-open check-in if no celebrations and hasn't checked in
+		if (!appState.checkedInToday && newUnlocks.length === 0) {
 			setTimeout(() => {
 				checkInOpen = true;
 			}, 1200);
@@ -22,6 +46,20 @@
 
 	function openCheckIn() {
 		checkInOpen = true;
+	}
+
+	function dismissCelebration() {
+		if (currentCelebration) {
+			markUnlockSeen(currentCelebration.id);
+		}
+		celebrationQueue = celebrationQueue.slice(1);
+
+		// After all celebrations, open check-in if needed
+		if (celebrationQueue.length === 0 && !appState.checkedInToday) {
+			setTimeout(() => {
+				checkInOpen = true;
+			}, 600);
+		}
 	}
 </script>
 
@@ -40,6 +78,11 @@
 	{/if}
 
 	<CheckInSheet bind:open={checkInOpen} />
+
+	<!-- Unlock celebration overlay -->
+	{#if currentCelebration}
+		<UnlockCelebration feature={currentCelebration} onDismiss={dismissCelebration} />
+	{/if}
 </div>
 
 <style>
