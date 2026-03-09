@@ -9,6 +9,7 @@
 	import Companion from './Companion.svelte';
 	import Particles from './Particles.svelte';
 	import Trees from './Trees.svelte';
+	import { appState } from '$lib/stores/app.svelte';
 
 	interface Props {
 		time?: TimeOfDay;
@@ -37,7 +38,7 @@
 		<!-- 7. Front trees -->
 		<Trees layer="front" />
 		<!-- 8. Companion (Ember) -->
-		<Companion />
+		<Companion state={appState.emberState} message={appState.emberMessage} />
 		<!-- 9. Particles overlay -->
 		<Particles {time} />
 	</svg>

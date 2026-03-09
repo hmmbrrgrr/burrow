@@ -1,13 +1,141 @@
-<!-- BottomSheet.svelte — Draggable bottom sheet component with snap points -->
+<!-- BottomSheet.svelte — Slide-up panel with drag-to-dismiss -->
 <script lang="ts">
-	let { open = $bindable(false), children }: { open: boolean; children: any } = $props();
-	// TODO: Touch-draggable with snap points, backdrop blur
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		open: boolean;
+		height?: 'half' | 'full' | 'auto';
+		children: Snippet;
+	}
+
+	let { open = $bindable(false), height = 'auto', children }: Props = $props();
+
+	let sheetEl: HTMLDivElement | undefined = $state();
+	let dragStartY = $state(0);
+	let dragOffset = $state(0);
+	let isDragging = $state(false);
+
+	const maxHeight = $derived(
+		height === 'full' ? '95vh' : height === 'half' ? '50vh' : 'auto'
+	);
+
+	function onTouchStart(e: TouchEvent) {
+		dragStartY = e.touches[0].clientY;
+		isDragging = true;
+		dragOffset = 0;
+	}
+
+	function onTouchMove(e: TouchEvent) {
+		if (!isDragging) return;
+		const delta = e.touches[0].clientY - dragStartY;
+		// Only allow dragging down
+		dragOffset = Math.max(0, delta);
+	}
+
+	function onTouchEnd() {
+		isDragging = false;
+		if (dragOffset > 120) {
+			open = false;
+		}
+		dragOffset = 0;
+	}
+
+	function onBackdropClick() {
+		open = false;
+	}
 </script>
 
 {#if open}
-	<div class="bottom-sheet fixed inset-x-0 bottom-0 z-40 bg-parchment rounded-t-3xl shadow-xl p-6 max-h-[80vh] overflow-y-auto">
-		<div class="w-12 h-1 bg-earth-brown/20 rounded-full mx-auto mb-4"></div>
-		{@render children()}
+	<!-- Backdrop -->
+	<button
+		class="sheet-backdrop"
+		class:visible={open}
+		onclick={onBackdropClick}
+		aria-label="Close"
+	></button>
+
+	<!-- Sheet -->
+	<div
+		bind:this={sheetEl}
+		class="sheet"
+		class:dragging={isDragging}
+		style="max-height: {maxHeight}; transform: translateY({dragOffset}px);"
+		ontouchstart={onTouchStart}
+		ontouchmove={onTouchMove}
+		ontouchend={onTouchEnd}
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+	>
+		<!-- Drag handle -->
+		<div class="sheet-handle">
+			<div class="handle-bar"></div>
+		</div>
+
+		<!-- Content -->
+		<div class="sheet-content">
+			{@render children()}
+		</div>
 	</div>
-	<button class="fixed inset-0 z-30 bg-earth-brown/20" onclick={() => open = false}></button>
 {/if}
+
+<style>
+	.sheet-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		background: rgba(92, 77, 60, 0.3);
+		border: none;
+		cursor: default;
+		animation: backdrop-in 0.3s ease-out forwards;
+	}
+
+	@keyframes backdrop-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	.sheet {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 50;
+		background: #F5EBD8;
+		border-radius: 16px 16px 0 0;
+		box-shadow: 0 -4px 24px rgba(92, 77, 60, 0.15);
+		overflow-y: auto;
+		animation: sheet-slide-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+		transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+		will-change: transform;
+	}
+
+	.sheet.dragging {
+		transition: none;
+	}
+
+	@keyframes sheet-slide-up {
+		from { transform: translateY(100%); }
+		to { transform: translateY(0); }
+	}
+
+	.sheet-handle {
+		display: flex;
+		justify-content: center;
+		padding: 12px 0 4px;
+		cursor: grab;
+	}
+
+	.handle-bar {
+		width: 40px;
+		height: 4px;
+		border-radius: 2px;
+		background: rgba(92, 77, 60, 0.2);
+	}
+
+	.sheet-content {
+		padding: 8px 24px 32px;
+		/* Safe area for bottom-of-screen phones */
+		padding-bottom: max(32px, env(safe-area-inset-bottom));
+	}
+</style>
